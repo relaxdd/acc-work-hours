@@ -1,5 +1,25 @@
 .wrapper {
   display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+}
+
+.overview {
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
-  width: 100%;
+  column-gap: 10px;
+}
+
+.options {
+  display: none;
+
+
+  &.visible {
+    display: block;
+  }
+
+  &__inner {
+
+  }
 }

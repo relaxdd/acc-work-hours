@@ -13,3 +13,5 @@ export declare interface IWorkData {
 export type SomeObject<T = any> = { [key: string]: T } & Object
 export type Pair<T> = [T, T]
 export type ListOfRate = { [key in LangEnum]: number }
+
+export type BaseDispatch<T extends Object> = (key: keyof T, value: T[keyof T]) => void

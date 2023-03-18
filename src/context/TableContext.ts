@@ -1,6 +1,6 @@
-import { DTEnum, IWorkData, LangEnum, ListOfRate } from "../types"
-import { createContext, Dispatch, useContext } from "react"
-import { defListOfRate } from "../data"
+import { DTEnum, IWorkData, LangEnum, ListOfRate } from '../types'
+import { createContext, Dispatch, useContext } from 'react'
+import { defListOfRate } from '../data'
 
 export type DispatchTableData<T extends Object> = (key: keyof T, value: T[keyof T], index: number) => void
 export type ChangeDateTime = (type: DTEnum, value: string, id: string) => void
@@ -8,33 +8,38 @@ export type ChangeDateTime = (type: DTEnum, value: string, id: string) => void
 export enum Actions {
   WH_Item = 'workHoursItem',
   Rewrite = 'rewrite',
-  Filter = "filter"
+  Filter = 'filter'
+}
+
+export type ITableFilter = {
+  lang: LangEnum | 'none',
+  date: string
+}
+
+export type ITableOptions = {
+  dtRoundStep: number
 }
 
 type DispatchWorkHours =
-  ({ key: "id" | "start" | "finish", value: string }
-    | { key: "lang", value: LangEnum }
-    | { key: "isPaid", value: boolean }) & { id: string }
+  ({ key: 'id' | 'start' | 'finish', value: string }
+    | { key: 'lang', value: LangEnum }
+    | { key: 'isPaid', value: boolean }) & { id: string }
 
 type DispatchRewrite =
-  | { key: "selected", value: string[] }
-  | { key: "workHours", value: IWorkData[] }
-  | { key: "filteredWH", value: IWorkData[] }
-  | { key: "filter", value: ITableFilter }
+  | { key: 'selected', value: string[] }
+  | { key: 'workHours', value: IWorkData[] }
+  | { key: 'filteredWH', value: IWorkData[] }
+  | { key: 'filter', value: ITableFilter }
+  | { key: 'options', value: ITableOptions }
 
 type DispatchFilter =
-  | { key: "lang", value: LangEnum }
-  | { key: "date", value: string }
+  | { key: 'lang', value: LangEnum }
+  | { key: 'date', value: string }
 
 export type ActionOfTReducer =
   | { type: Actions.WH_Item, payload: DispatchWorkHours }
   | { type: Actions.Rewrite, payload: DispatchRewrite }
   | { type: Actions.Filter, payload: DispatchFilter }
-
-type ITableFilter = {
-  lang: LangEnum | "none",
-  date: string
-}
 
 export type ITableStore = {
   workHours: IWorkData[],
@@ -42,13 +47,14 @@ export type ITableStore = {
   selected: string[],
   listOfRate: ListOfRate,
   filter: ITableFilter,
+  options: ITableOptions
 }
 
 type ITableContext = [ITableStore, Dispatch<ActionOfTReducer>]
 
 export const defTableFilter: ITableFilter = {
-  lang: "none",
-  date: "none"
+  lang: 'none',
+  date: 'none',
 }
 
 export const defTableContext: ITableStore = {
@@ -57,6 +63,9 @@ export const defTableContext: ITableStore = {
   selected: [],
   listOfRate: defListOfRate,
   filter: defTableFilter,
+  options: {
+    dtRoundStep: 15,
+  },
 }
 
 function dispatchWorkHours(prev: IWorkData[], { id, key, value }: DispatchWorkHours): IWorkData[] {

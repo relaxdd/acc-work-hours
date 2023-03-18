@@ -7,21 +7,8 @@ import { getDateTimeWithOffset, getFormattedDateTime, roundDateTime } from '../.
 import Random from '../../utils/class/Random'
 import { Actions, useTableContext } from '../../context/TableContext'
 
-function createItem(): IWorkData {
-  const start = roundDateTime(getFormattedDateTime())
-  const finish = getDateTimeWithOffset(1, start)
-
-  return {
-    id: Random.uuid(),
-    start,
-    finish,
-    lang: 'js',
-    isPaid: false,
-  }
-}
-
 const TableButtons = () => {
-  const [{ workHours }, dispatch] = useTableContext()
+  const [{ workHours, options }, dispatch] = useTableContext()
 
   function dispatchWorkHours(value: IWorkData[]) {
     dispatch({
@@ -31,7 +18,17 @@ const TableButtons = () => {
   }
 
   function addTableRow() {
-    const item = createItem()
+    const start = roundDateTime(getFormattedDateTime(), options.dtRoundStep)
+    const finish = getDateTimeWithOffset(1.77, start)
+
+    const item: IWorkData = {
+      id: Random.uuid(),
+      start,
+      finish,
+      lang: 'js',
+      isPaid: false,
+    }
+
     dispatchWorkHours([...workHours, item])
   }
 

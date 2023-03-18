@@ -75,15 +75,15 @@ export function getListOfRate() {
   }
 }
 
-export function roundDateTime(datetime: string) {
+export function roundDateTime(datetime: string, step: number) {
   type Result = { minutes: string, isIncrease: boolean }
 
   const minutes = +datetime.split('T').at(-1)!.split(':').at(-1)!
-  if (minutes % DateTimeRoundStep === 0) return datetime
+  if (minutes % step === 0) return datetime
 
-  const steps = Math.floor(minutes / DateTimeRoundStep)
-  const clear = minutes - (steps * DateTimeRoundStep)
-  const direction = clear > DateTimeRoundStep / 2
+  const steps = Math.floor(minutes / step)
+  const clear = minutes - (steps * step)
+  const direction = clear > step / 2
 
   const addLeadZero = (m: number) => String(m).padStart(2, '0')
 
@@ -92,9 +92,9 @@ export function roundDateTime(datetime: string) {
   }
 
   const info = !direction
-    ? getValueWithLeadZero(steps * DateTimeRoundStep)
+    ? getValueWithLeadZero(steps * step)
     : ((): Result => {
-      const result = (steps + 1) * DateTimeRoundStep
+      const result = (steps + 1) * step
 
       return result === 60
         ? { minutes: '00', isIncrease: true }
@@ -103,7 +103,6 @@ export function roundDateTime(datetime: string) {
 
   // withOffset.substring(0, withOffset.length - 2)
   const withOffset = getDateTimeWithOffset(+info.isIncrease, datetime)
-  const left = withOffset.split(':')[0]
 
-  return `${left}:${info.minutes}`
+  return `${withOffset.split(':')[0]}:${info.minutes}`
 }
