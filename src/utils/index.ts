@@ -1,5 +1,5 @@
 import { IWorkData, ListOfRate } from '../types'
-import { defListOfRate, DateTimeRoundStep } from '../data'
+import { defListOfRate } from '../data'
 
 export function getDiffOfHours(start: string, finish: string): number {
   const date1 = new Date(start)

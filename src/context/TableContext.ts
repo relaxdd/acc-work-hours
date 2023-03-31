@@ -20,8 +20,13 @@ export type ITableOptions = {
   dtRoundStep: number
 }
 
+export type IModalVisible = {
+  visible: boolean,
+  id: string | null
+}
+
 type DispatchWorkHours =
-  ({ key: 'id' | 'start' | 'finish', value: string }
+  ({ key: 'id' | 'start' | 'finish' | 'description', value: string }
     | { key: 'lang', value: LangEnum }
     | { key: 'isPaid', value: boolean }) & { id: string }
 
@@ -31,6 +36,8 @@ type DispatchRewrite =
   | { key: 'filteredWH', value: IWorkData[] }
   | { key: 'filter', value: ITableFilter }
   | { key: 'options', value: ITableOptions }
+  | { key: 'leftVisible', value: boolean }
+  | { key: 'modalVisible', value: IModalVisible }
 
 type DispatchFilter =
   | { key: 'lang', value: LangEnum }
@@ -42,6 +49,8 @@ export type ActionOfTReducer =
   | { type: Actions.Filter, payload: DispatchFilter }
 
 export type ITableStore = {
+  leftVisible: boolean,
+  modalVisible: IModalVisible,
   workHours: IWorkData[],
   filteredWH: IWorkData[],
   selected: string[],
@@ -57,7 +66,14 @@ export const defTableFilter: ITableFilter = {
   date: 'none',
 }
 
+export const defModalVisible: IModalVisible = {
+  id: null,
+  visible: false,
+}
+
 export const defTableContext: ITableStore = {
+  leftVisible: false,
+  modalVisible: defModalVisible,
   workHours: [],
   filteredWH: [],
   selected: [],
@@ -80,6 +96,7 @@ export function tableReducer(state: ITableStore, action: ActionOfTReducer): ITab
       return { ...state, [action.payload.key]: action.payload.value }
     }
     case Actions.WH_Item: {
+      console.log(action.payload)
       return {
         ...state,
         workHours: dispatchWorkHours(state.workHours, action.payload),

@@ -1,8 +1,8 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { formatDate, getDiffOfHours, getHoursOrZero, getTimeByDT, getTypedKeys } from "../../utils"
-import { DTEnum, FieldsEnum, IWorkData, LangEnum } from "../../types"
-import { listOfLang } from "../../data"
-import { Actions, ChangeDateTime, useTableContext } from "../../context/TableContext"
+import { formatDate, getDiffOfHours, getHoursOrZero, getTimeByDT, getTypedKeys } from '../../utils'
+import { DTEnum, FieldsEnum, IWorkData, LangEnum } from '../../types'
+import { listOfLang } from '../../data'
+import { Actions, ChangeDateTime, useTableContext } from '../../context/TableContext'
 
 type Nullable<T> = T | null
 
@@ -64,9 +64,9 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
   function preChange(key: DTEnum, value: string) {
     const check = (() => {
       switch (key) {
-        case "start":
+        case 'start':
           return value < data.finish
-        case "finish":
+        case 'finish':
           return value > data.start
       }
     })()
@@ -79,7 +79,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
   function onDeleteHandle(e: React.KeyboardEvent<HTMLTableRowElement>) {
     e.preventDefault()
 
-    if (e.key !== "Delete") return
+    if (e.key !== 'Delete') return
     if (!window.confirm(`Хотите удалить строку '${index + 1}'?`)) return
 
     deleteTableRow(data.id)
@@ -88,7 +88,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
   function dispatchSelected(value: string[]) {
     dispatch({
       type: Actions.Rewrite,
-      payload: { key: "selected", value },
+      payload: { key: 'selected', value },
     })
   }
 
@@ -104,7 +104,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
       <td>{index + 1}</td>
       <td>{diffDate}</td>
       <td
-        onDoubleClick={() => changeWritingMode("start", true)}
+        onDoubleClick={() => changeWritingMode('start', true)}
       >
         {writingMode.start
           ? (
@@ -113,15 +113,15 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
               className="form-control"
               value={data.start}
               max={data.finish}
-              onChange={({ target }) => preChange("start", target.value)}
-              onBlur={() => onBlurHandle("start")}
+              onChange={({ target }) => preChange('start', target.value)}
+              onBlur={() => onBlurHandle('start')}
               ref={startRef}
             />
           )
           : getTimeByDT(data.start)}
       </td>
       <td
-        onDoubleClick={() => changeWritingMode("finish", true)}
+        onDoubleClick={() => changeWritingMode('finish', true)}
       >
         {writingMode.finish
           ? (
@@ -130,8 +130,8 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
               className="form-control"
               value={data.finish}
               min={data.start}
-              onChange={({ target }) => preChange("finish", target.value)}
-              onBlur={() => onBlurHandle("finish")}
+              onChange={({ target }) => preChange('finish', target.value)}
+              onBlur={() => onBlurHandle('finish')}
               ref={finishRef}
             />
           )
@@ -139,7 +139,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
       </td>
       <td>{qtyHours} ч.</td>
       <td
-        onDoubleClick={() => changeWritingMode("lang", true)}
+        onDoubleClick={() => changeWritingMode('lang', true)}
       >
         {writingMode.lang
           ? (
@@ -150,12 +150,12 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
                 dispatch({
                   type: Actions.WH_Item,
                   payload: {
-                    key: "lang", id: data.id,
+                    key: 'lang', id: data.id,
                     value: target.value as LangEnum,
                   },
                 })
               }}
-              onBlur={() => changeWritingMode("lang", false)}
+              onBlur={() => changeWritingMode('lang', false)}
               ref={langRef}
             >
               {getTypedKeys(listOfLang).map((key, i) => (
@@ -166,7 +166,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
           : data.lang}
       </td>
       <td
-        onDoubleClick={() => changeWritingMode("paid", true)}
+        onDoubleClick={() => changeWritingMode('paid', true)}
       >
         {writingMode.paid
           ? (
@@ -174,17 +174,16 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
               type="checkbox"
               checked={data.isPaid}
               className="form-check-input"
+              ref={paidRef}
+              onBlur={() => changeWritingMode('paid', false)}
               onChange={() => {
                 dispatch({
                   type: Actions.WH_Item,
                   payload: {
-                    key: "isPaid", id: data.id,
-                    value: !data.isPaid,
+                    key: 'isPaid', id: data.id, value: !data.isPaid,
                   },
                 })
               }}
-              onBlur={() => changeWritingMode("paid", false)}
-              ref={paidRef}
             />
           )
           : (data.isPaid
@@ -199,6 +198,25 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
           checked={selected.includes(data.id)}
           onChange={toggleCheckHours}
         />
+      </td>
+      <td
+        style={{ padding: '5px 10px' }}
+        onDoubleClick={(e) => {
+          e.preventDefault()
+
+          dispatch({
+            type: Actions.Rewrite,
+            payload: {
+              key: 'modalVisible',
+              value: {
+                id: data.id,
+                visible: true,
+              },
+            },
+          })
+        }}
+      >
+        {data.description.slice(0, 35).trim() + (data.description.length > 25 ? '...' : '')}
       </td>
     </tr>
   )

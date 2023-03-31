@@ -8,6 +8,7 @@ export declare interface IWorkData {
   finish: string,
   lang: LangEnum,
   isPaid: boolean,
+  description: string
 }
 
 export type SomeObject<T = any> = { [key: string]: T } & Object

@@ -7,12 +7,6 @@ import TableFoot from './TableFoot'
 import { IWorkData, LangEnum } from '../../types'
 
 class Sorting {
-  public static run() {
-
-  }
-
-  /* Modules */
-
   public static byLang(lang: LangEnum | 'none', list: IWorkData[]) {
     return lang !== 'none'
       ? list.filter((it) => it.lang === lang) : list

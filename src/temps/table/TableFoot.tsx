@@ -73,11 +73,12 @@ const TableFoot = () => {
           onChange={() => toggleCheckAll(!checkAll)}
         />
       </td>
+      <td>&nbsp;</td>
     </tr>
     <tr>
       <td colSpan={4}>Итоговая сумма оплаты</td>
       <td>{roundNumber(totalPayment).toFixed(2)} ₽</td>
-      <td colSpan={3}>{textAmountsByLang}</td>
+      <td colSpan={4}>{textAmountsByLang}</td>
     </tr>
     </tfoot>
   )

@@ -2,46 +2,61 @@ import FilterLang from './FilterLang'
 import { Actions, defTableContext, defTableFilter, ITableOptions, useTableContext } from '../../context/TableContext'
 import FilterDate from './FilterDate'
 import scss from './Filter.module.scss'
-import { FC, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { BaseDispatch } from '../../types'
 import { LS_OPTION_KEY } from '../../data'
+import { setAccessPassword } from '../../utils/login'
 
-interface FOverviewProps {
-  changeVisible: () => void,
-  resetFilter: () => void
+const defFilterContext = {
+  isVisible: false,
+  changeVisible: () => {
+  },
+  resetFilter: () => {
+  },
 }
 
-const FilterOverview: FC<FOverviewProps> = ({ changeVisible, resetFilter }) => (
-  <div className={scss.overview}>
-    <div>
-      <input
-        type="button"
-        className="btn btn-secondary"
-        value="Настройки"
-        onClick={changeVisible}
-      />
-    </div>
-    <div className="col-3">
-      <FilterDate />
-    </div>
+const FilterContext = createContext(defFilterContext)
+const useFilterContext = () => useContext(FilterContext)
 
-    <div className="col-3">
-      <FilterLang />
-    </div>
+/* Components */
 
-    <div className="col-2">
-      <input
-        type="button"
-        className="btn w-100 btn-outline-primary"
-        value="Сбросить"
-        onClick={resetFilter}
-      />
-    </div>
-  </div>
-)
+const FilterOverview = () => {
+  const { changeVisible, resetFilter } = useFilterContext()
 
-const FilterOptions = ({ isVisible }: { isVisible: boolean }) => {
+  return (
+    <div className={scss.overview}>
+      <div>
+        <input
+          type="button"
+          className="btn btn-secondary"
+          value="Настройки"
+          onClick={changeVisible}
+        />
+      </div>
+      <div className="col-3">
+        <FilterDate />
+      </div>
+
+      <div className="col-3">
+        <FilterLang />
+      </div>
+
+      <div className="col-2">
+        <input
+          type="button"
+          className="btn w-100 btn-outline-primary"
+          value="Сбросить"
+          onClick={resetFilter}
+        />
+      </div>
+    </div>
+  )
+}
+
+const FilterOptions = () => {
   const [{ options }, dispatch] = useTableContext()
+  const { isVisible } = useFilterContext()
+  const [value, setValue] = useState('')
 
   const changeOptionsField: BaseDispatch<ITableOptions> = (key, value) => {
     const data = {
@@ -56,6 +71,11 @@ const FilterOptions = ({ isVisible }: { isVisible: boolean }) => {
 
     localStorage.setItem(LS_OPTION_KEY, JSON.stringify(data))
   }
+
+  useEffect(() => {
+    if (!isVisible) return
+    setValue("")
+  }, [isVisible])
 
   return (
     <div className={scss.options + (isVisible ? ' ' + scss.visible : '')}>
@@ -73,6 +93,28 @@ const FilterOptions = ({ isVisible }: { isVisible: boolean }) => {
             <option value="15">15 Минут</option>
           </select>
         </label>
+
+        <label htmlFor="newPassword">
+          <span>Новый пароль</span>
+          <div className="d-flex align-items-end gap-2">
+            <input
+              type="password"
+              id="newPassword"
+              className="form-control mt-2"
+              autoComplete="nope"
+              value={value}
+              onChange={({ target }) => setValue(target.value)}
+            />
+
+            <input
+              type="button"
+              className="btn btn-primary"
+              value="Сохранить"
+              onClick={() => setAccessPassword(value)}
+            />
+          </div>
+
+        </label>
       </div>
     </div>
   )
@@ -89,15 +131,19 @@ const Filter = () => {
     })
   }
 
-  return (
-    <div className={scss.wrapper}>
-      <FilterOverview
-        changeVisible={() => setVisible(prev => !prev)}
-        resetFilter={resetFilter}
-      />
+  function changeVisible() {
+    setVisible(prev => !prev)
+  }
 
-      <FilterOptions isVisible={isVisible} />
-    </div>
+  return (
+    <FilterContext.Provider
+      value={{ isVisible, changeVisible, resetFilter }}
+    >
+      <div className={scss.wrapper}>
+        <FilterOverview />
+        <FilterOptions />
+      </div>
+    </FilterContext.Provider>
   )
 }
 

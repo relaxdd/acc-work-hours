@@ -19,7 +19,7 @@ const TableButtons = () => {
 
   function addTableRow() {
     const start = roundDateTime(getFormattedDateTime(), options.dtRoundStep)
-    const finish = getDateTimeWithOffset(1.77, start)
+    const finish = getDateTimeWithOffset(1.5, start)
 
     const item: IWorkData = {
       id: Random.uuid(),
@@ -27,6 +27,7 @@ const TableButtons = () => {
       finish,
       lang: 'js',
       isPaid: false,
+      description: '',
     }
 
     dispatchWorkHours([...workHours, item])

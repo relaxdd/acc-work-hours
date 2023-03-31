@@ -1,21 +1,27 @@
-import Table from "./table/Table"
-import Wrapper from "./Wrapper"
-import Random from "../utils/class/Random"
-import { IWorkData } from "../types"
+import Table from './table/Table'
+import Wrapper from './Wrapper'
+import Random from '../utils/class/Random'
+import { IWorkData } from '../types'
 import { defTableContext, ITableOptions, ITableStore, TableContext, tableReducer } from '../context/TableContext'
 import { LS_DATA_KEY, LS_OPTION_KEY } from '../data'
-import { useReducer } from "react"
-import TableButtons from "./table/TableButtons"
-import Filter from "./filter/Filter"
-import { getListOfRate } from "../utils"
+import { useReducer, useState } from 'react'
+import TableButtons from './table/TableButtons'
+import Filter from './filter/Filter'
+import { getListOfRate } from '../utils'
+import Left from './left/Left'
+import DescriptionModal from './DescriptionModal'
 
-type LegacyWorkData = Omit<IWorkData, "id"> & { id?: string }
+type LegacyWorkData = Omit<IWorkData, 'id' | 'description'> & { id?: string, description?: string }
 
-export const defWorkData: (LegacyWorkData | IWorkData)[] = JSON.parse(localStorage.getItem(LS_DATA_KEY) ?? "[]")
+export const defWorkData: (LegacyWorkData | IWorkData)[] = JSON.parse(localStorage.getItem(LS_DATA_KEY) ?? '[]')
 
 export function formatLegacy() {
   return defWorkData.map((it) => {
-    return "id" in it ? it : { ...it, id: Random.uuid() }
+    return {
+      ...it,
+      id: it?.id || Random.uuid(),
+      description: it?.description || '',
+    }
   }) as IWorkData[]
 }
 
@@ -38,7 +44,7 @@ function getDefStore(): ITableStore {
 
   return {
     ...defTableContext,
-    workHours, selected, listOfRate, options
+    workHours, selected, listOfRate, options,
   }
 }
 
@@ -51,6 +57,8 @@ function App() {
         <Filter />
         <Table />
         <TableButtons />
+        <Left />
+        <DescriptionModal />
       </TableContext.Provider>
     </Wrapper>
   )
