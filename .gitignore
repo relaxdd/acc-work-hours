@@ -129,4 +129,4 @@ dist
 build/
 
 # jetBrains
-.idea
+.idea/
