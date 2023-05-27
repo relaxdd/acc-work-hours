@@ -1,19 +1,27 @@
 import React from 'react'
-import CompareData from '../../utils/class/CompareData'
-import { defWorkData, formatLegacy } from '../App'
-import { LS_DATA_KEY } from '../../data'
-import { IWorkData } from '../../types'
-import { getDateTimeWithOffset, getFormattedDateTime, roundDateTime } from '../../utils'
-import Random from '../../utils/class/Random'
-import { Actions, useTableContext } from '../../context/TableContext'
+import CompareData from 'utils/class/CompareData'
+import { IWorkTableRow } from 'types'
+import { getAllIds, getDateTimeWithOffset, getFormattedDateTime, roundDateTime } from 'utils'
+import Random from 'utils/class/Random'
+import { Actions, useTableContext } from 'context/TableContext'
+import TableService from '../../service/TableService'
 
 const TableButtons = () => {
-  const [{ workHours, options }, dispatch] = useTableContext()
+  const [{
+    initialTable,
+    modifiedTable,
+    options,
+    activeTable,
+    selectedRows,
+  }, dispatch, payload] = useTableContext()
 
-  function dispatchWorkHours(value: IWorkData[]) {
+  function dispatchModifiedTable(table: IWorkTableRow[]) {
     dispatch({
-      type: Actions.Rewrite,
-      payload: { key: 'workHours', value },
+      type: Actions.State,
+      payload: {
+        modifiedTable: table,
+        selectedRows: getAllIds(table),
+      },
     })
   }
 
@@ -21,8 +29,9 @@ const TableButtons = () => {
     const start = roundDateTime(getFormattedDateTime(), options.dtRoundStep)
     const finish = getDateTimeWithOffset(1.5, start)
 
-    const item: IWorkData = {
+    const item: IWorkTableRow = {
       id: Random.uuid(),
+      tableId: Random.uuid(),
       start,
       finish,
       lang: 'js',
@@ -30,23 +39,35 @@ const TableButtons = () => {
       description: '',
     }
 
-    dispatchWorkHours([...workHours, item])
+    const table = [...modifiedTable, item]
+
+    dispatch({
+      type: Actions.State,
+      payload: {
+        modifiedTable: table,
+        selectedRows: [...selectedRows, item.id],
+      },
+    })
   }
 
   function saveWorkTableData() {
-    localStorage.setItem(LS_DATA_KEY, JSON.stringify(workHours))
-    window.location.reload()
+    TableService.updateActiveTableData(activeTable!, modifiedTable)
+
+    dispatch({
+      type: Actions.Rewrite,
+      payload: payload('initialTable', modifiedTable),
+    })
   }
 
   function showExportData() {
-    const json = localStorage.getItem(LS_DATA_KEY)
+    const list = TableService.getActiveTableData(activeTable!)
 
-    if (!json) {
+    if (!list.length) {
       alert('База рабочих часов пуста!')
       return
     }
 
-    window.navigator.clipboard.writeText(json)
+    window.navigator.clipboard.writeText(JSON.stringify(list))
       .then(() => {
         alert('База рабочих часов успешно скопирована в буфер обмена')
       })
@@ -71,8 +92,8 @@ const TableButtons = () => {
         type="button"
         value="Сбросить"
         className="btn btn-outline-danger"
-        disabled={CompareData.isEquals(defWorkData, workHours)}
-        onClick={() => dispatchWorkHours(formatLegacy())}
+        disabled={CompareData.isEquals(initialTable, modifiedTable)}
+        onClick={() => dispatchModifiedTable(initialTable)}
       />
       <input
         type="button"
@@ -84,7 +105,7 @@ const TableButtons = () => {
         type="button"
         value="Сохранить"
         className="btn btn-primary"
-        disabled={CompareData.isEquals(defWorkData, workHours)}
+        disabled={CompareData.isEquals(initialTable, modifiedTable)}
         onClick={saveWorkTableData}
       />
     </div>

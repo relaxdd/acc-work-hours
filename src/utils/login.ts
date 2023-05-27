@@ -7,12 +7,14 @@ const LS_TIME_KEY = '_awenn2015_wh_time'
 const PASSWORD_HASH = window.localStorage.getItem(LS_ACCESS_KEY) ?? '34c5687ae683e42be4912504672c3831'
 const isLocalhost = window.location.hostname === 'localhost'
 
-function savePass() {
+export function saveDateAccess() {
   const date = getFormattedDateTime()
   window.localStorage.setItem(LS_TIME_KEY, date)
+
+  console.log(window.localStorage.getItem(LS_TIME_KEY))
 }
 
-export function setAccessPassword(password: string) {
+export function setAccessPassword(password: string, cb?: () => void) {
   const msg = [
     'Пожалуйста введите новый пароль',
     'Длина пароля должна быть не меньше 16 символов',
@@ -31,28 +33,57 @@ export function setAccessPassword(password: string) {
   window.localStorage.setItem(LS_ACCESS_KEY, md5(password).toString())
   window.localStorage.removeItem(LS_TIME_KEY)
 
-  window.location.reload()
+  cb && cb()
 }
 
+export function comparePassword(password: string) {
+  return md5(password).toString() === PASSWORD_HASH
+}
+
+export function needEnterPass(force?: boolean): boolean {
+  if (force !== undefined) return force
+  // if (isLocalhost) return false
+
+  const time = window.localStorage.getItem(LS_TIME_KEY)
+  if (time === null) return true
+
+  /** Время после которого нужно вводить пароль */
+  const finish = getDateTimeWithOffset(24, time)
+
+  if (finish > getFormattedDateTime())
+    return false
+  else {
+    window.localStorage.removeItem(LS_TIME_KEY)
+    return true
+  }
+}
+
+/** @deprecated */
 export function validatePass() {
   const msg = 'Введите пароль'
-  return md5(window.prompt(msg) ?? '').toString() === PASSWORD_HASH
+  return comparePassword(window.prompt(msg) ?? '')
 }
 
-export function needPass(cb: (() => boolean)) {
-  if (isLocalhost) return true
+/**
+ * Первая версия авторизации на промпте
+ * @deprecated
+ */
+export function needPass(cb: (() => boolean), force?: boolean) {
+  if (isLocalhost && !force) return true
 
-  const check = window.localStorage.getItem(LS_TIME_KEY)
+  const time = window.localStorage.getItem(LS_TIME_KEY)
 
-  if (check === null) {
+  if (time === null) {
     if (!cb()) return false
     else {
-      savePass()
+      saveDateAccess()
       return true
     }
   } else {
-    const finish = getDateTimeWithOffset(24, check)
-    if (finish > getFormattedDateTime())
+    /** Время после которого нужно вводить пароль */
+    const finish = getDateTimeWithOffset(24, time)
+
+    if (finish <= getFormattedDateTime())
       return true
     else {
       window.localStorage.removeItem(LS_TIME_KEY)

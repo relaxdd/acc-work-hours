@@ -3,7 +3,7 @@ import { Modal } from 'react-bootstrap'
 import { Actions, defModalVisible, useTableContext } from '../context/TableContext'
 
 const DescriptionModal = () => {
-  const [{ modalVisible, filteredWH }, dispatch] = useTableContext()
+  const [{ modalVisible, filteredTable }, dispatch, payload] = useTableContext()
   const [description, setDescription] = useState(getDefDescription)
 
   useEffect(() => {
@@ -14,13 +14,13 @@ const DescriptionModal = () => {
   }, [modalVisible])
 
   function getDefDescription() {
-    return filteredWH.find(it => it.id === modalVisible.id)?.description || ''
+    return filteredTable.find(it => it.id === modalVisible.id)?.description || ''
   }
 
   function handleClose() {
     dispatch({
       type: Actions.Rewrite,
-      payload: { key: 'modalVisible', value: defModalVisible },
+      payload: payload('modalVisible', defModalVisible),
     })
   }
 

@@ -4,67 +4,67 @@ import TableRow from './TableRow'
 import TableHead from './TableHead'
 import { Actions, ChangeDateTime, useTableContext } from '../../context/TableContext'
 import TableFoot from './TableFoot'
-import { IWorkData, LangEnum } from '../../types'
+import { IWorkTableRow, LangEnum } from '../../types'
 
 class Sorting {
-  public static byLang(lang: LangEnum | 'none', list: IWorkData[]) {
+  public static byLang(lang: LangEnum | 'none', list: IWorkTableRow[]) {
     return lang !== 'none'
       ? list.filter((it) => it.lang === lang) : list
   }
 
-  public static byDate(date: string, list: IWorkData[]) {
+  public static byDate(date: string, list: IWorkTableRow[]) {
     return date !== 'none'
       ? list.filter(it => it.start.split('T')[0] === date) : list
   }
 }
 
 const Table: FC = () => {
-  const [{ workHours, filter, filteredWH }, dispatch] = useTableContext()
+  const [{ modifiedTable, filter, filteredTable }, dispatch, payload] = useTableContext()
 
-  const changeDT: ChangeDateTime = (key, value, id) => {
+  const changeDateTime: ChangeDateTime = (key, value, id) => {
     dispatch({ type: Actions.WH_Item, payload: { key, value, id } })
   }
 
   function deleteTableRow(id: string) {
-    const filtered = workHours.filter(it => it.id !== id)
+    const filtered = modifiedTable.filter(it => it.id !== id)
 
     dispatch({
       type: Actions.Rewrite,
-      payload: { key: 'workHours', value: filtered },
+      payload: payload('modifiedTable', filtered),
     })
   }
 
-  function dispatchFWH(value: IWorkData[]) {
+  function dispatchFilteredTable(value: IWorkTableRow[]) {
     dispatch({
       type: Actions.Rewrite,
-      payload: { key: 'filteredWH', value },
+      payload: payload('filteredTable', value),
     })
   }
 
   useEffect(() => {
-    const byDate = Sorting.byDate(filter.date, workHours)
+    const byDate = Sorting.byDate(filter.date, modifiedTable)
     const byLang = Sorting.byLang(filter.lang, byDate)
 
-    dispatchFWH(byLang)
-  }, [workHours, filter])
+    dispatchFilteredTable(byLang)
+  }, [modifiedTable, filter])
 
   return (
     <table className={scss.table}>
-      <TableHead />
+      <TableHead/>
 
       <tbody>
-      {filteredWH.map((it, i) => (
+      {filteredTable.map((it, i) => (
         <TableRow
           data={it}
           index={i}
-          changeDT={changeDT}
+          changeDT={changeDateTime}
           deleteTableRow={deleteTableRow}
           key={it.id}
         />
       ))}
       </tbody>
 
-      <TableFoot />
+      <TableFoot/>
     </table>
   )
 }

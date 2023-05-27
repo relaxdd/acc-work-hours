@@ -1,9 +1,18 @@
-export type FieldsEnum = "start" | "finish" | "lang" | "paid"
-export type DTEnum = "start" | "finish"
-export type LangEnum = "js" | "php" | "wp" | "react" | "html"
+export type FieldsEnum = 'start' | 'finish' | 'lang' | 'paid'
+export type DTEnum = 'start' | 'finish'
+export type LangEnum = 'js' | 'php' | 'wp' | 'react' | 'html'
 
-export declare interface IWorkData {
-  id: string
+export interface IWorkTable {
+  id: string,
+  userId: string | null,
+  name: string,
+  created: string,
+  password: string | null,
+}
+
+export interface IWorkTableRow {
+  id: string,
+  tableId: string,
   start: string,
   finish: string,
   lang: LangEnum,
@@ -11,8 +20,5 @@ export declare interface IWorkData {
   description: string
 }
 
-export type SomeObject<T = any> = { [key: string]: T } & Object
-export type Pair<T> = [T, T]
-export type ListOfRate = { [key in LangEnum]: number }
-
-export type BaseDispatch<T extends Object> = (key: keyof T, value: T[keyof T]) => void
+export type ListOfRate = Record<LangEnum, number>
+type BaseDispatch<V extends Object> = <T extends V, K extends keyof T>(key: K, value: T[K]) => void

@@ -1,11 +1,8 @@
 import FilterLang from './FilterLang'
-import { Actions, defTableContext, defTableFilter, ITableOptions, useTableContext } from '../../context/TableContext'
+import { Actions, defTableFilter, useTableContext } from '../../context/TableContext'
 import FilterDate from './FilterDate'
 import scss from './Filter.module.scss'
-import { createContext, useContext, useEffect, useState } from 'react'
-import { BaseDispatch } from '../../types'
-import { LS_OPTION_KEY } from '../../data'
-import { setAccessPassword } from '../../utils/login'
+import { createContext, useContext } from 'react'
 
 const defFilterContext = {
   isVisible: false,
@@ -21,7 +18,15 @@ const useFilterContext = () => useContext(FilterContext)
 /* Components */
 
 const FilterOverview = () => {
-  const { changeVisible, resetFilter } = useFilterContext()
+  const [, dispatch, payload] = useTableContext()
+  const { resetFilter } = useFilterContext()
+
+  function showSettingModal() {
+    dispatch({
+      type: Actions.Rewrite,
+      payload: payload('settingVisible', true),
+    })
+  }
 
   return (
     <div className={scss.overview}>
@@ -30,15 +35,15 @@ const FilterOverview = () => {
           type="button"
           className="btn btn-secondary"
           value="Настройки"
-          onClick={changeVisible}
+          onClick={showSettingModal}
         />
       </div>
       <div className="col-3">
-        <FilterDate />
+        <FilterDate/>
       </div>
 
       <div className="col-3">
-        <FilterLang />
+        <FilterLang/>
       </div>
 
       <div className="col-2">
@@ -53,95 +58,46 @@ const FilterOverview = () => {
   )
 }
 
-const FilterOptions = () => {
-  const [{ options }, dispatch] = useTableContext()
-  const { isVisible } = useFilterContext()
-  const [value, setValue] = useState('')
-
-  const changeOptionsField: BaseDispatch<ITableOptions> = (key, value) => {
-    const data = {
-      ...options,
-      [key]: value || defTableContext.options[key]!,
-    }
-
-    dispatch({
-      type: Actions.Rewrite,
-      payload: { key: 'options', value: data },
-    })
-
-    localStorage.setItem(LS_OPTION_KEY, JSON.stringify(data))
-  }
-
-  useEffect(() => {
-    if (!isVisible) return
-    setValue("")
-  }, [isVisible])
-
-  return (
-    <div className={scss.options + (isVisible ? ' ' + scss.visible : '')}>
-      <div className={scss.options__inner}>
-        <label htmlFor="dtRoundStep">
-          <span>Шаг округления</span>
-          <select
-            id="dtRoundStep"
-            className="form-select mt-2"
-            value={options.dtRoundStep}
-            onChange={({ target }) => changeOptionsField('dtRoundStep', +target.value)}
-          >
-            <option value="5">5 Минут</option>
-            <option value="10">10 Минут</option>
-            <option value="15">15 Минут</option>
-          </select>
-        </label>
-
-        <label htmlFor="newPassword">
-          <span>Новый пароль</span>
-          <div className="d-flex align-items-end gap-2">
-            <input
-              type="password"
-              id="newPassword"
-              className="form-control mt-2"
-              autoComplete="nope"
-              value={value}
-              onChange={({ target }) => setValue(target.value)}
-            />
-
-            <input
-              type="button"
-              className="btn btn-primary"
-              value="Сохранить"
-              onClick={() => setAccessPassword(value)}
-            />
-          </div>
-
-        </label>
-      </div>
-    </div>
-  )
-}
+// const FilterOptions = () => {
+//   const [{ options }, dispatch, payload] = useTableContext()
+//   const { isVisible } = useFilterContext()
+//
+//
+////   useEffect(() => {
+////     if (!isVisible) return
+////     setValue('')
+////   }, [isVisible])
+//
+//   return (
+//     <div className={scss.options + (isVisible ? ' ' + scss.visible : '')}>
+//       <div className={scss.options__inner}></div>
+//     </div>
+//   )
+// }
 
 const Filter = () => {
-  const [, dispatch] = useTableContext()
-  const [isVisible, setVisible] = useState(false)
+  const [, dispatch, payload] = useTableContext()
+
+  // const [isVisible, setVisible] = useState(false)
 
   function resetFilter() {
     dispatch({
       type: Actions.Rewrite,
-      payload: { key: 'filter', value: defTableFilter },
+      payload: payload('filter', defTableFilter),
     })
   }
 
   function changeVisible() {
-    setVisible(prev => !prev)
+    // setVisible(prev => !prev)
   }
 
   return (
     <FilterContext.Provider
-      value={{ isVisible, changeVisible, resetFilter }}
+      value={{ isVisible: false, changeVisible, resetFilter }}
     >
       <div className={scss.wrapper}>
-        <FilterOverview />
-        <FilterOptions />
+        <FilterOverview/>
+        {/* <FilterOptions/> */}
       </div>
     </FilterContext.Provider>
   )

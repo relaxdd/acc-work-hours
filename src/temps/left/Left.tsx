@@ -1,43 +1,54 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Offcanvas } from 'react-bootstrap'
-import LeftButton from './LeftButton'
-import { Actions, useTableContext } from '../../context/TableContext'
+import LeftFloating from './LeftFloating'
+import { Actions, useTableContext } from 'context/TableContext'
 import scss from './Left.module.scss'
-
-function getWorkTables() {
-
-}
-
-const demoListOfWT = [
-  {
-    name: 'Table 1',
-    datetime: 'qwerty',
-  },
-  {
-    name: 'Table 2',
-    datetime: 'qwerty',
-  },
-  {
-    name: 'Table 3',
-    datetime: 'qwerty',
-  },
-
-]
+import LeftItem from './LeftItem'
+import TableService from '../../service/TableService'
 
 const Left = () => {
-  const [{ leftVisible }, dispatch] = useTableContext()
-  const [isCreate, setCreate] = useState(false)
+  const [{ leftVisible, listOfTables, activeTable }, dispatch, payload] = useTableContext()
+
+  const [isCreateMode, setCreateMode] = useState(false)
+  const [name, setName] = useState(getDefName)
+
+  useEffect(() => {
+    if (!isCreateMode) return
+    setName(getDefName)
+  }, [isCreateMode])
+
+  function getDefName() {
+    return `По умолчанию ${listOfTables.length + 1}`
+  }
 
   function changeVisible() {
+    setCreateMode(false)
+
     dispatch({
       type: Actions.Rewrite,
-      payload: { key: 'leftVisible', value: !leftVisible },
+      payload: payload('leftVisible', !leftVisible),
     })
+  }
+
+  function onAddTable() {
+    const id = TableService.createWorkTable(name)
+
+    setCreateMode(false)
+
+    dispatch({
+      type: Actions.State,
+      payload: {
+        activeTable: id,
+        listOfTables: [...listOfTables, { id, name }],
+      },
+    })
+
+    TableService.activeTable = id
   }
 
   return (
     <>
-      <LeftButton />
+      {activeTable && <LeftFloating/>}
 
       <Offcanvas show={leftVisible} onHide={changeVisible}>
         <Offcanvas.Header closeButton>
@@ -45,42 +56,59 @@ const Left = () => {
         </Offcanvas.Header>
         <Offcanvas.Body>
           <div className={scss.wrapper}>
-            <div>
-              {demoListOfWT.map((it, i) => (
-                <p className={scss.item} key={i}>{it.name}</p>
-              ))}
+            <div className={scss.top}>
+              {listOfTables.length
+                ? (
+                  <div className={scss.list}>
+                    {listOfTables.map((it) => (
+                      <LeftItem data={it} key={it.id}/>
+                    ))}
+                  </div>
+                )
+                : !isCreateMode && (<p>Рабочие таблицы еще не созданы...</p>)
+              }
 
-              {isCreate && (
-                <div className="d-flex" style={{ columnGap: '10px' }}>
+              {isCreateMode && (
+                <div className={scss.create}>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Имя таблицы"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
 
                   <input
                     type="button"
                     className="btn btn-primary"
                     value="Добавить"
+                    onClick={onAddTable}
                   />
 
                   <input
                     type="button"
                     className="btn btn-outline-secondary"
                     value="Отмена"
-                    onClick={() => setCreate(false)}
+                    onClick={() => setCreateMode(false)}
                   />
                 </div>
-
               )}
             </div>
 
-            <div>
+            <div className={scss.bottom}>
               <input
                 type="button"
                 className="btn btn-primary"
-                value="Создать"
-                onClick={() => setCreate(true)}
+                value="Добавить таблицу"
+                disabled={isCreateMode}
+                onClick={() => setCreateMode(true)}
+              />
+
+              <input
+                type="button"
+                className="btn btn-outline-danger"
+                value="Удалить все таблицы"
+                onClick={() => TableService.deleteAllTables()}
               />
             </div>
           </div>

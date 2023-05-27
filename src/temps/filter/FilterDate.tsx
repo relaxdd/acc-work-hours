@@ -2,7 +2,7 @@ import { Actions, useTableContext } from "../../context/TableContext"
 import { useMemo } from "react"
 
 const FilterDate = () => {
-  const [{ workHours, filter }, dispatch] = useTableContext()
+  const [{ modifiedTable, filter }, dispatch] = useTableContext()
 
   function convertToPretty(dt: string) {
     const date = new Date(dt)
@@ -23,9 +23,9 @@ const FilterDate = () => {
   }
 
   const list = useMemo(() => {
-    if (!workHours.length) return []
+    if (!modifiedTable.length) return []
 
-    const dates = workHours.map(it => it.start.split("T")[0]!)
+    const dates = modifiedTable.map(it => it.start.split("T")[0]!)
 
     return [...(new Set(dates))].map((it) => {
       return {
@@ -33,7 +33,7 @@ const FilterDate = () => {
         pretty: convertToPretty(it),
       }
     })
-  }, [workHours])
+  }, [modifiedTable])
 
   return (
     <select

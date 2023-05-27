@@ -1,14 +1,14 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import App from "./temps/App"
-import "bootstrap/dist/css/bootstrap.min.css"
+import App from './temps/App'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import './assets/styles/index.css'
-import { needPass, validatePass } from "./utils/login"
+import { needEnterPass } from './utils/login'
+import Auth from './Auth'
 
-if (needPass(validatePass)) {
-  const root = createRoot(
-    document.getElementById('root') as HTMLElement,
-  )
+(() => {
+  const node = document.getElementById('app-root')
+  const root = createRoot(node as HTMLElement)
 
-  root.render(<App />)
-}
+  root.render(needEnterPass() ? <Auth/> : <App/>)
+})()

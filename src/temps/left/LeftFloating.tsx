@@ -1,28 +1,27 @@
 import React from 'react'
 import scss from './Left.module.scss'
-import { Actions, useTableContext } from '../../context/TableContext'
+import { Actions, useTableContext } from 'context/TableContext'
 
-const LeftButton = () => {
-  const [{ leftVisible }, dispatch] = useTableContext()
+const LeftFloating = () => {
+  const [{ leftVisible }, dispatch, payload] = useTableContext()
 
   function changeVisible() {
     dispatch({
       type: Actions.Rewrite,
-      payload: { key: 'leftVisible', value: !leftVisible },
+      payload: payload('leftVisible', !leftVisible),
     })
   }
 
   return (
-    <div className={scss.button}>
+    <div className={scss.floating}>
       <input
         type="button"
         className="btn btn-warning"
         value="T"
-        style={{ fontWeight: '500' }}
         onClick={changeVisible}
       />
     </div>
   )
 }
 
-export default LeftButton
+export default LeftFloating

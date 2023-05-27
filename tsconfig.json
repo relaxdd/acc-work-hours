@@ -37,9 +37,7 @@
     "downlevelIteration": true,
     "baseUrl": "./src",
     "paths": {
-      "@/*": [
-        "typescript/*"
-      ]
+      "src/*": ["./src/*"]
     }
   },
   "include": [

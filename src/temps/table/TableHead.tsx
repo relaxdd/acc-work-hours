@@ -5,14 +5,14 @@ const TableHead = () => {
     <>
       <colgroup>
         <col width="5%" />
-        <col width="20%" />
-        <col width="12.5%" />
-        <col width="12.5%" />
-        <col width="10%" />
-        <col width="10%" />
-        <col width="6%" />
-        <col width="6%" />
         <col width="18%" />
+        <col width="12.5%" />
+        <col width="12.5%" />
+        <col width="10%" />
+        <col width="10%" />
+        <col width="6%" />
+        <col width="6%" />
+        <col width="20%" />
       </colgroup>
       <thead>
       <tr>

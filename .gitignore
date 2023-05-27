@@ -127,3 +127,6 @@ dist
 
 # build
 build/
+
+# jetBrains
+.idea

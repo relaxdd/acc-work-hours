@@ -1,5 +1,7 @@
-import { IWorkData, ListOfRate } from '../types'
+import { IWorkTable, IWorkTableRow, ListOfRate } from '../types'
 import { defListOfRate } from '../data'
+import Random from './class/Random'
+import { PartOfWorkTable } from '../context/TableContext'
 
 export function getDiffOfHours(start: string, finish: string): number {
   const date1 = new Date(start)
@@ -11,7 +13,7 @@ export function getDiffOfHours(start: string, finish: string): number {
   return roundNumber(diffInTime / oneDay, 2)
 }
 
-export function formatDate(obj: IWorkData): string {
+export function formatDate(obj: IWorkTableRow): string {
   const { start, finish } = obj
 
   const getDate = (dt: string) => dt.split('T')[0]!
@@ -105,4 +107,30 @@ export function roundDateTime(datetime: string, step: number) {
   const withOffset = getDateTimeWithOffset(+info.isIncrease, datetime)
 
   return `${withOffset.split(':')[0]}:${info.minutes}`
+}
+
+export function formatLegacy(table: IWorkTableRow[]) {
+  return table.map((it) => {
+    return {
+      ...it,
+      id: it?.id || Random.uuid(),
+      description: it?.description || '',
+    }
+  }) as IWorkTableRow[]
+}
+
+export function parseLocalStorage<T = any>(key: string, def = '[]') {
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? def) as T
+  } catch (e) {
+    return JSON.parse(def) as T
+  }
+}
+
+export function getAllIds<T extends { id: string }>(data: T[]): string[] {
+  return data.map(it => it.id)
+}
+
+export function getTablesInfoDto(list: IWorkTable[]): PartOfWorkTable[] {
+  return list.map(({ id, name }) => ({ id, name }))
 }

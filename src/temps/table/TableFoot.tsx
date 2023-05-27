@@ -1,15 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { getDiffOfHours, getHoursOrZero, getTypedKeys, roundNumber } from "../../utils"
-import { Actions, useTableContext } from "../../context/TableContext"
-import { getAllIds } from "../App"
-import { LangEnum } from "../../types"
+import { getAllIds, getDiffOfHours, getHoursOrZero, getTypedKeys, roundNumber } from 'utils'
+import { Actions, useTableContext } from 'context/TableContext'
+import { LangEnum } from 'types'
 
 const TableFoot = () => {
-  const [{ filteredWH, selected, listOfRate }, dispatch] = useTableContext()
+  const [{ filteredTable, selectedRows, listOfRate }, dispatch, payload] = useTableContext()
   const [checkAll, setCheckAll] = useState(true)
 
   const [totalHours, totalPayment] = useMemo(() => {
-    const filtered = filteredWH.filter(it => selected.includes(it.id))
+    const filtered = filteredTable.filter(it => selectedRows.includes(it.id))
 
     return filtered.reduce((total, it) => {
       const hours = getHoursOrZero(getDiffOfHours(it.start, it.finish))
@@ -19,17 +18,17 @@ const TableFoot = () => {
         total[1] + (hours * listOfRate[it.lang]),
       ]
     }, [0, 0] as [number, number])
-  }, [filteredWH, selected])
+  }, [filteredTable, selectedRows])
 
   useEffect(() => {
-    if (!selected.length) setCheckAll(false)
+    if (!selectedRows.length) setCheckAll(false)
     else setCheckAll(true)
-  }, [selected])
+  }, [selectedRows])
 
   function dispatchSelect(value: string[]) {
     dispatch({
       type: Actions.Rewrite,
-      payload: { key: "selected", value },
+      payload: payload('selectedRows', value),
     })
   }
 
@@ -37,11 +36,11 @@ const TableFoot = () => {
     setCheckAll(prev => !prev)
 
     if (!value) dispatchSelect([])
-    else dispatchSelect(getAllIds(filteredWH))
+    else dispatchSelect(getAllIds(filteredTable))
   }
 
   function calcAmountByLang() {
-    const filtered = filteredWH.filter(it => selected.includes(it.id))
+    const filtered = filteredTable.filter(it => selectedRows.includes(it.id))
 
     return filtered.reduce((list, { lang, start, finish }) => {
       const hours = getHoursOrZero(getDiffOfHours(start, finish))
@@ -56,8 +55,8 @@ const TableFoot = () => {
 
     return getTypedKeys(list).map((key) => {
       return `(${listOfRate[key]} * ${roundNumber(list[key], 2)})`
-    }).join(" + ")
-  }, [filteredWH, selected])
+    }).join(' + ')
+  }, [filteredTable, selectedRows])
 
   return (
     <tfoot>
