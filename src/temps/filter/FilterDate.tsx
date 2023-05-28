@@ -1,4 +1,4 @@
-import { Actions, useTableContext } from "../../context/TableContext"
+import { Actions, useTableContext } from '@/context/TableContext'
 import { useMemo } from "react"
 
 const FilterDate = () => {
@@ -41,7 +41,7 @@ const FilterDate = () => {
       value={filter.date}
       onChange={({ target }) => dispatchFilter(target.value)}
     >
-      <option value="none">Фильтровать по дате</option>
+      <option value="none">По дате</option>
       {list.map(({ base, pretty }, i) => (
         <option value={base} key={i}>{pretty}</option>
       ))}

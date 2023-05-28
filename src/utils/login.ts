@@ -4,7 +4,8 @@ import { getDateTimeWithOffset, getFormattedDateTime } from './index'
 export const LS_ACCESS_KEY = '_awenn2015_wh_access'
 
 const LS_TIME_KEY = '_awenn2015_wh_time'
-const PASSWORD_HASH = window.localStorage.getItem(LS_ACCESS_KEY) ?? '34c5687ae683e42be4912504672c3831'
+// '34c5687ae683e42be4912504672c3831'
+const PASSWORD_HASH = window.localStorage.getItem(LS_ACCESS_KEY) ?? 'd8578edf8458ce06fbc5bb76a58c5ca4'
 const isLocalhost = window.location.hostname === 'localhost'
 
 export function saveDateAccess() {

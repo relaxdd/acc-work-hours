@@ -5,9 +5,9 @@ type WrapperProps = {
 }
 
 const Wrapper: FC<WrapperProps> = ({ children }) => (
-  <div className="container" style={{paddingTop: "15px"}}>
+  <div className="container-lg" style={{paddingTop: "15px"}}>
     <div className="row d-flex justify-content-center">
-      <div className="col-10">
+      <div className="col-11 col-lg-10">
         {children}
       </div>
     </div>

@@ -1,33 +1,20 @@
 import Table from './table/Table'
 import Wrapper from './Wrapper'
 import { IWorkTable, IWorkTableRow } from 'types'
-import {
-  Actions,
-  defTableContext,
-  ITableOptions,
-  ITableStore,
-  TableContext,
-  tableReducer,
-  wrapPayload,
-} from 'context/TableContext'
-import { LS_OPTION_KEY } from 'data'
-import { useReducer } from 'react'
+import { Actions, defTableContext, ITableStore, TableContext, tableReducer, wrapPayload } from 'context/TableContext'
+import { useEffect, useReducer, useState } from 'react'
 import TableButtons from './table/TableButtons'
 import Filter from './filter/Filter'
-import { getAllIds, getListOfRate, getTablesInfoDto } from 'utils'
+import { getAllIds } from '@/utils'
 import Left from './left/Left'
 import DescriptionModal from './DescriptionModal'
-import TableService from 'service/TableService'
-import useDidUpdateEffect from '../hooks/useDidUpdateEffect'
+import TableService from '@/service/TableService'
+import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
 import Empty from './Empty'
 import SettingModal from './setting/SettingModal'
+import CompareData from '@/utils/class/CompareData'
 
-function getLocalOptions() {
-  const options = localStorage.getItem(LS_OPTION_KEY)
-  if (!options) return null
-  // TODO: Добавить проверку каждой опции
-  return JSON.parse(options) as ITableOptions
-}
+type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
 
 function getActiveTableInfo(list?: IWorkTable[]) {
   const listOfTables = list || TableService.listOfTablesInfo
@@ -39,14 +26,16 @@ function getActiveTableInfo(list?: IWorkTable[]) {
   return listOfTables.find(it => it.id === active) || listOfTables[0]!
 }
 
-type BoundedPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
-
-function getBoundedPartsOfStore(table: IWorkTableRow[]): BoundedPartsOfStore {
+function getBoundPartsOfStore(table: IWorkTableRow[]): BoundPartsOfStore {
   return {
     initialTable: table,
     modifiedTable: table,
     selectedRows: getAllIds(table),
   }
+}
+
+function getActiveOptions(id: string | null) {
+  return id ? TableService.getActiveOptions(id) ?? defTableContext.options : defTableContext.options
 }
 
 function getInitStore(): ITableStore {
@@ -57,15 +46,12 @@ function getInitStore(): ITableStore {
 
   const table = TableService.getActiveTableData(active.id)
 
-  const listOfRate = getListOfRate()
-  const options = getLocalOptions() ?? defTableContext.options
-
   return {
     ...defTableContext,
     activeTable: active && active.id,
-    listOfTables: getTablesInfoDto(list),
-    listOfRate, options,
-    ...getBoundedPartsOfStore(table),
+    listOfTables: TableService.listOfTablesInfo,
+    options: getActiveOptions(active.id),
+    ...getBoundPartsOfStore(table),
   }
 }
 
@@ -73,6 +59,30 @@ function getInitStore(): ITableStore {
 
 function App() {
   const [store, dispatch] = useReducer(tableReducer, getInitStore())
+  const [width, setWidth] = useState(window.innerWidth)
+
+  useEffect(() => {
+    window.addEventListener('resize', () => {
+      setWidth(window.innerWidth)
+    })
+  }, [])
+
+  useEffect(() => {
+    function handler(e: any) {
+      const msg = 'Do you really want to close?';
+      (e || window.event).returnValue = msg
+      return msg
+    }
+
+    if (CompareData.isEquals(store.initialTable, store.modifiedTable))
+      window.removeEventListener('beforeunload', handler)
+    else
+      window.addEventListener('beforeunload', handler)
+
+    return () => {
+      window.removeEventListener('beforeunload', handler)
+    }
+  }, [store.initialTable, store.modifiedTable])
 
   useDidUpdateEffect(() => {
     const table = store.activeTable !== null
@@ -81,11 +91,14 @@ function App() {
 
     dispatch({
       type: Actions.State,
-      payload: getBoundedPartsOfStore(table),
+      payload: {
+        ...getBoundPartsOfStore(table),
+        options: getActiveOptions(store.activeTable),
+      },
     })
   }, [store.activeTable])
 
-  return (
+  return width >= 768 ? (
     <Wrapper>
       <TableContext.Provider value={[store, dispatch, wrapPayload]}>
         {store.activeTable === null
@@ -101,6 +114,12 @@ function App() {
         <SettingModal/>
       </TableContext.Provider>
     </Wrapper>
+  ) : (
+    <div className="container">
+      <div style={{ height: '100vh', width: '100%', display: 'flex', alignItems: 'center' }}>
+        <h2>Для отображения этого приложения ширина экрана должна быть больше 767px :(</h2>
+      </div>
+    </div>
   )
 }
 

@@ -1,8 +1,7 @@
-import { DTEnum, IWorkTable, IWorkTableRow, LangEnum, ListOfRate } from '../types'
 import { createContext, Dispatch, useContext } from 'react'
-import { defListOfRate } from '../data'
+import { DTEnum, IAppSettings, ITableOptions, IWorkTable, IWorkTableRow } from '@/types'
 
-export type DispatchTableData<T extends Object> = (key: keyof T, value: T[keyof T], index: number) => void
+// export type DispatchTableData<T extends Object> = (key: keyof T, value: T[keyof T], index: number) => void
 export type ChangeDateTime = (type: DTEnum, value: string, id: string) => void
 
 type DispatchRewrite<T extends Object, K extends keyof T = keyof T> = { key: K, value: T[K] }
@@ -16,12 +15,8 @@ export enum Actions {
 }
 
 export type ITableFilter = {
-  lang: LangEnum | 'none',
+  tech: string | 'none',
   date: string
-}
-
-export type ITableOptions = {
-  dtRoundStep: number
 }
 
 export type IModalVisible = {
@@ -31,20 +26,11 @@ export type IModalVisible = {
 
 type DispatchTable =
   ({ key: 'id' | 'start' | 'finish' | 'description', value: string }
-    | { key: 'lang', value: LangEnum }
+    | { key: 'tech', value: string }
     | { key: 'isPaid', value: boolean }) & { id: string }
 
-//type DispatchRewrite =
-//  | { key: 'selected', value: string[] }
-//  | { key: 'workHours', value: IWorkTableRow[] }
-//  | { key: 'filteredWH', value: IWorkTableRow[] }
-//  | { key: 'filter', value: ITableFilter }
-//  | { key: 'options', value: ITableOptions }
-//  | { key: 'leftVisible', value: boolean }
-//  | { key: 'modalVisible', value: IModalVisible }
-
 type DispatchFilter =
-  | { key: 'lang', value: LangEnum }
+  | { key: 'tech', value: string }
   | { key: 'date', value: string }
 
 export type ActionOfTReducer =
@@ -53,11 +39,10 @@ export type ActionOfTReducer =
   | { type: Actions.Filter, payload: DispatchFilter }
   | { type: Actions.State, payload: Partial<ITableStore> }
 
-export type PartOfWorkTable = Pick<IWorkTable, 'id' | 'name'>
 
 export type ITableStore = {
   /** Некоторые данные описания таблиц для отрисовки в левом меню */
-  listOfTables: PartOfWorkTable[]
+  listOfTables: IWorkTable[]
   /** Активная рабочая таблица */
   activeTable: string | null
   /** Отображение списка таблиц */
@@ -74,18 +59,18 @@ export type ITableStore = {
   filteredTable: IWorkTableRow[],
   /** Список из выбранных для подсчета id */
   selectedRows: string[],
-  /** Ставка в час для каждого стека */
-  listOfRate: ListOfRate,
   /** Состояние фильтра таблицы */
   filter: ITableFilter,
   /** Состояние опций таблицы */
-  options: ITableOptions
+  options: ITableOptions,
+  /** Настройки приложения */
+  settings: IAppSettings
 }
 
 type ITableContext = [ITableStore, Dispatch<ActionOfTReducer>, RewriteDispatch2]
 
 export const defTableFilter: ITableFilter = {
-  lang: 'none',
+  tech: 'none',
   date: 'none',
 }
 
@@ -104,10 +89,15 @@ export const defTableContext: ITableStore = {
   filteredTable: [],
   selectedRows: [],
   modalVisible: defModalVisible,
-  listOfRate: defListOfRate,
   filter: defTableFilter,
+  settings: {
+    theme: 'system',
+  },
   options: {
-    dtRoundStep: 15,
+    dtRoundStep: 10,
+    listOfTech: [
+      { key: 'base', text: 'Базовый', rate: 200 },
+    ],
   },
 }
 

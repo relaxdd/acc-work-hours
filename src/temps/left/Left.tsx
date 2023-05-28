@@ -4,10 +4,21 @@ import LeftFloating from './LeftFloating'
 import { Actions, useTableContext } from 'context/TableContext'
 import scss from './Left.module.scss'
 import LeftItem from './LeftItem'
-import TableService from '../../service/TableService'
+import TableService from '@/service/TableService'
+import { IWorkTable } from '@/types'
+
+export type IWorkTableWithActive = (IWorkTable & { isVisible: boolean })
+
+function buildListOfDetails(list: IWorkTable[]): IWorkTableWithActive[] {
+  return list.map(it => ({ ...it, isVisible: false }))
+}
 
 const Left = () => {
   const [{ leftVisible, listOfTables, activeTable }, dispatch, payload] = useTableContext()
+
+  const [listOfDetails, setListOfDetails] = useState(() => {
+    return buildListOfDetails(listOfTables)
+  })
 
   const [isCreateMode, setCreateMode] = useState(false)
   const [name, setName] = useState(getDefName)
@@ -17,12 +28,28 @@ const Left = () => {
     setName(getDefName)
   }, [isCreateMode])
 
+  useEffect(() => {
+    setListOfDetails(buildListOfDetails(listOfTables))
+  }, [listOfTables])
+
+  function setItemVisible(id: string) {
+    setListOfDetails((prev) => {
+      return prev.map((it) => ({
+        ...it, isVisible: it.id === id ? !it.isVisible : false,
+      }))
+    })
+  }
+
   function getDefName() {
     return `По умолчанию ${listOfTables.length + 1}`
   }
 
-  function changeVisible() {
+  function setLeftVisible() {
     setCreateMode(false)
+
+    setListOfDetails((prev) => {
+      return prev.map(it => ({ ...it, isVisible: false }))
+    })
 
     dispatch({
       type: Actions.Rewrite,
@@ -31,26 +58,27 @@ const Left = () => {
   }
 
   function onAddTable() {
-    const id = TableService.createWorkTable(name)
+    const item = TableService.createWorkTable(name)
 
     setCreateMode(false)
 
     dispatch({
       type: Actions.State,
       payload: {
-        activeTable: id,
-        listOfTables: [...listOfTables, { id, name }],
+        activeTable: item.id,
+        listOfTables: [...listOfTables, item],
       },
     })
 
-    TableService.activeTable = id
+    TableService.activeTable = item.id
   }
+
 
   return (
     <>
       {activeTable && <LeftFloating/>}
 
-      <Offcanvas show={leftVisible} onHide={changeVisible}>
+      <Offcanvas show={leftVisible} onHide={setLeftVisible}>
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Рабочие таблицы</Offcanvas.Title>
         </Offcanvas.Header>
@@ -60,8 +88,12 @@ const Left = () => {
               {listOfTables.length
                 ? (
                   <div className={scss.list}>
-                    {listOfTables.map((it) => (
-                      <LeftItem data={it} key={it.id}/>
+                    {listOfDetails.map((it) => (
+                      <LeftItem
+                        data={it}
+                        toggle={setItemVisible}
+                        key={it.id}
+                      />
                     ))}
                   </div>
                 )
@@ -104,12 +136,14 @@ const Left = () => {
                 onClick={() => setCreateMode(true)}
               />
 
-              <input
-                type="button"
-                className="btn btn-outline-danger"
-                value="Удалить все таблицы"
-                onClick={() => TableService.deleteAllTables()}
-              />
+              {listOfTables.length > 0 && (
+                <input
+                  type="button"
+                  className="btn btn-outline-danger"
+                  value="Удалить все таблицы"
+                  onClick={() => TableService.deleteAllTables()}
+                />
+              )}
             </div>
           </div>
         </Offcanvas.Body>

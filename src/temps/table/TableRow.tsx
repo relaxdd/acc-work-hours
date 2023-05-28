@@ -1,8 +1,8 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { formatDate, getDiffOfHours, getHoursOrZero, getTimeByDT, getTypedKeys } from '../../utils'
-import { DTEnum, FieldsEnum, IWorkTableRow, LangEnum } from '../../types'
-import { listOfLang } from '../../data'
-import { Actions, ChangeDateTime, useTableContext } from '../../context/TableContext'
+import { formatDate, getDiffOfHours, getHoursOrZero, getTimeByDT } from '@/utils'
+import type { FieldsEnum, IWorkTableRow } from '@/types'
+import { DTEnum } from '@/types'
+import { Actions, ChangeDateTime, useTableContext } from '@/context/TableContext'
 
 type Nullable<T> = T | null
 
@@ -20,7 +20,7 @@ interface WTRowProps {
 const defWritingData: WriterList = {
   start: false,
   finish: false,
-  lang: false,
+  tech: false,
   paid: false,
 }
 
@@ -29,7 +29,7 @@ function calcWorkHours(data: IWorkTableRow) {
 }
 
 const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => {
-  const [{ filteredTable, selectedRows }, dispatch, payload] = useTableContext()
+  const [{ filteredTable, selectedRows, options }, dispatch, payload] = useTableContext()
   // state
   const [writingMode, setWritingMode] = useState(defWritingData)
   const [diffDate, setDiffDate] = useState(formatDate(data))
@@ -47,7 +47,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
   useEffect(() => {
     if (writingMode.start) startRef.current?.focus()
     if (writingMode.finish) finishRef.current?.focus()
-    if (writingMode.lang) langRef.current?.focus()
+    if (writingMode.tech) langRef.current?.focus()
     if (writingMode.paid) paidRef.current?.focus()
   }, [writingMode])
 
@@ -139,31 +139,30 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
       </td>
       <td>{qtyHours} ч.</td>
       <td
-        onDoubleClick={() => changeWritingMode('lang', true)}
+        onDoubleClick={() => changeWritingMode('tech', true)}
       >
-        {writingMode.lang
+        {writingMode.tech
           ? (
             <select
               className="form-select"
-              value={data.lang}
+              value={data.tech}
               onChange={({ target }) => {
                 dispatch({
                   type: Actions.WH_Item,
                   payload: {
-                    key: 'lang', id: data.id,
-                    value: target.value as LangEnum,
+                    key: 'tech', id: data.id, value: target.value,
                   },
                 })
               }}
-              onBlur={() => changeWritingMode('lang', false)}
+              onBlur={() => changeWritingMode('tech', false)}
               ref={langRef}
             >
-              {getTypedKeys(listOfLang).map((key, i) => (
-                <option value={key} key={i}>{listOfLang[key]}</option>
+              {options.listOfTech.map((it, i) => (
+                <option value={it.key} key={i}>{it.text}</option>
               ))}
             </select>
           )
-          : data.lang}
+          : data.tech}
       </td>
       <td
         onDoubleClick={() => changeWritingMode('paid', true)}

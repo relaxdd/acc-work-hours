@@ -1,6 +1,16 @@
-export type FieldsEnum = 'start' | 'finish' | 'lang' | 'paid'
+export type FieldsEnum = 'start' | 'finish' | 'tech' | 'paid'
 export type DTEnum = 'start' | 'finish'
-export type LangEnum = 'js' | 'php' | 'wp' | 'react' | 'html'
+
+export type IAppSettings = {
+  theme: 'dark' | 'light' | 'system'
+}
+
+export type ITableOptionsTech = { key: string, text: string, rate: number }
+
+export type ITableOptions = {
+  dtRoundStep: number,
+  listOfTech: ITableOptionsTech[]
+}
 
 export interface IWorkTable {
   id: string,
@@ -8,6 +18,7 @@ export interface IWorkTable {
   name: string,
   created: string,
   password: string | null,
+  count: number
 }
 
 export interface IWorkTableRow {
@@ -15,10 +26,11 @@ export interface IWorkTableRow {
   tableId: string,
   start: string,
   finish: string,
-  lang: LangEnum,
+  tech: string,
   isPaid: boolean,
   description: string
 }
 
-export type ListOfRate = Record<LangEnum, number>
-type BaseDispatch<V extends Object> = <T extends V, K extends keyof T>(key: K, value: T[K]) => void
+// export type PartOfWorkTable = Pick<IWorkTable, 'id' | 'name' | 'created' | 'count'>
+export type ListOfRate = Record<string, number>
+export type BaseDispatch<V extends Object> = <T extends V, K extends keyof T>(key: K, value: T[K]) => void

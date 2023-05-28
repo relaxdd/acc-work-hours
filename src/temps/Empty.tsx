@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { Actions, useTableContext } from '../context/TableContext'
+import { Actions, useTableContext } from '@/context/TableContext'
 
 function Empty(): ReactElement {
   const [, dispatch, payload] = useTableContext()

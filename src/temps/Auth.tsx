@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react'
 import { Modal } from 'react-bootstrap'
-import { comparePassword, saveDateAccess } from './utils/login'
+import { comparePassword, saveDateAccess } from '../utils/login'
 
 const Auth = () => {
   const [value, setValue] = useState('')

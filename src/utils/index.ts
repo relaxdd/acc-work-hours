@@ -1,7 +1,5 @@
-import { IWorkTable, IWorkTableRow, ListOfRate } from '../types'
-import { defListOfRate } from '../data'
+import { IWorkTableRow, ListOfRate } from '@/types'
 import Random from './class/Random'
-import { PartOfWorkTable } from '../context/TableContext'
 
 export function getDiffOfHours(start: string, finish: string): number {
   const date1 = new Date(start)
@@ -63,19 +61,19 @@ export function ceilHours(h: number) {
 
 export const getHoursOrZero = (qty: number) => isNaN(qty) ? 0 : ceilHours(qty)
 
-export function getListOfRate() {
-  const json = localStorage.getItem('_awenn2015_wh_rates')
-
-  if (json === null) return defListOfRate
-  else {
-    return getTypedKeys(defListOfRate).reduce((data, key) => {
-      const list = JSON.parse(json) as ListOfRate
-      data[key] = list?.[key] || defListOfRate[key]
-
-      return data
-    }, {} as ListOfRate)
-  }
-}
+// export function getListOfRate() {
+//   const json = localStorage.getItem('_awenn2015_wh_rates')
+//
+//   if (json === null) return defListOfRate
+//   else {
+//     return getTypedKeys(defListOfRate).reduce((data, key) => {
+//       const list = JSON.parse(json) as ListOfRate
+//       data[key] = list?.[key] || defListOfRate[key]
+//
+//       return data
+//     }, {} as ListOfRate)
+//   }
+// }
 
 export function roundDateTime(datetime: string, step: number) {
   type Result = { minutes: string, isIncrease: boolean }
@@ -131,6 +129,34 @@ export function getAllIds<T extends { id: string }>(data: T[]): string[] {
   return data.map(it => it.id)
 }
 
-export function getTablesInfoDto(list: IWorkTable[]): PartOfWorkTable[] {
-  return list.map(({ id, name }) => ({ id, name }))
+export function round(n1: number, n2 = 2) {
+  return Math.round(n1 * 10 ** n2) / 10 ** n2
 }
+
+export function calcRatioOfArrayValues(arr: string[]) {
+  type ListOfItemRatio = Record<string, { count: number, percent: number }>
+
+  return arr.reduce<ListOfItemRatio>((acc, it) => {
+    acc[it] = !(it in acc)
+      ? { count: 1, percent: round(1 / arr.length) }
+      : (() => {
+        const count = acc[it]!.count + 1
+        return { count, percent: round(count / arr.length) }
+      })()
+
+    return acc
+  }, {})
+}
+
+export function localStorageKeys(fn: (key: string) => void) {
+  for (let i = 0; i < localStorage.length; i++)
+    fn(localStorage.key(i)!)
+}
+
+// export function getTableInfoDto({ id, name, created, count }: IWorkTable): PartOfWorkTable {
+//   return { id, name, created, count }
+// }
+//
+// export function getTablesInfoDto(list: IWorkTable[]): PartOfWorkTable[] {
+//   return list.map(getTableInfoDto)
+// }

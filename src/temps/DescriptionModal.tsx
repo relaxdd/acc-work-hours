@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Modal } from 'react-bootstrap'
-import { Actions, defModalVisible, useTableContext } from '../context/TableContext'
+import { Actions, defModalVisible, useTableContext } from '@/context/TableContext'
 
 const DescriptionModal = () => {
   const [{ modalVisible, filteredTable }, dispatch, payload] = useTableContext()

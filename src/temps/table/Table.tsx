@@ -2,17 +2,17 @@ import scss from './Table.module.scss'
 import { FC, useEffect } from 'react'
 import TableRow from './TableRow'
 import TableHead from './TableHead'
-import { Actions, ChangeDateTime, useTableContext } from '../../context/TableContext'
+import { Actions, ChangeDateTime, useTableContext } from '@/context/TableContext'
 import TableFoot from './TableFoot'
-import { IWorkTableRow, LangEnum } from '../../types'
+import { IWorkTableRow } from '@/types'
 
 class Sorting {
-  public static byLang(lang: LangEnum | 'none', list: IWorkTableRow[]) {
-    return lang !== 'none'
-      ? list.filter((it) => it.lang === lang) : list
+  public static byTech(tech: string | 'none', list: IWorkTableRow[]) {
+    return tech !== 'none'
+      ? list.filter((it) => it.tech === tech) : list
   }
 
-  public static byDate(date: string, list: IWorkTableRow[]) {
+  public static byDate(date: string | 'none', list: IWorkTableRow[]) {
     return date !== 'none'
       ? list.filter(it => it.start.split('T')[0] === date) : list
   }
@@ -43,7 +43,7 @@ const Table: FC = () => {
 
   useEffect(() => {
     const byDate = Sorting.byDate(filter.date, modifiedTable)
-    const byLang = Sorting.byLang(filter.lang, byDate)
+    const byLang = Sorting.byTech(filter.tech, byDate)
 
     dispatchFilteredTable(byLang)
   }, [modifiedTable, filter])

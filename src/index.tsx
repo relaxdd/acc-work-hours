@@ -4,7 +4,7 @@ import App from './temps/App'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './assets/styles/index.css'
 import { needEnterPass } from './utils/login'
-import Auth from './Auth'
+import Auth from './temps/Auth'
 
 (() => {
   const node = document.getElementById('app-root')

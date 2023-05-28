@@ -37,10 +37,11 @@
     "downlevelIteration": true,
     "baseUrl": "./src",
     "paths": {
-      "src/*": ["./src/*"]
+      "@/*": ["./*"],
+      "@svg/*": ["./assets/svg/*"],
     }
   },
   "include": [
-    "src"
+    "./src"
   ]
 }

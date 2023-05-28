@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { getAllIds, getDiffOfHours, getHoursOrZero, getTypedKeys, roundNumber } from 'utils'
-import { Actions, useTableContext } from 'context/TableContext'
-import { LangEnum } from 'types'
+import { getAllIds, getDiffOfHours, getHoursOrZero, roundNumber } from '@/utils'
+import { Actions, useTableContext } from '@/context/TableContext'
 
 const TableFoot = () => {
-  const [{ filteredTable, selectedRows, listOfRate }, dispatch, payload] = useTableContext()
+  const [{ filteredTable, selectedRows, options }, dispatch, payload] = useTableContext()
   const [checkAll, setCheckAll] = useState(true)
 
   const [totalHours, totalPayment] = useMemo(() => {
@@ -12,10 +11,11 @@ const TableFoot = () => {
 
     return filtered.reduce((total, it) => {
       const hours = getHoursOrZero(getDiffOfHours(it.start, it.finish))
+      const data = options.listOfTech.find(({ key }) => key === it.tech)
 
       return [
         total[0] + hours,
-        total[1] + (hours * listOfRate[it.lang]),
+        total[1] + (hours * (data?.rate || 0)),
       ]
     }, [0, 0] as [number, number])
   }, [filteredTable, selectedRows])
@@ -39,22 +39,25 @@ const TableFoot = () => {
     else dispatchSelect(getAllIds(filteredTable))
   }
 
-  function calcAmountByLang() {
+  function calcAmountByTech() {
     const filtered = filteredTable.filter(it => selectedRows.includes(it.id))
 
-    return filtered.reduce((list, { lang, start, finish }) => {
-      const hours = getHoursOrZero(getDiffOfHours(start, finish))
-      list[lang] = (list?.[lang] || 0) + hours
+    return filtered.reduce<Record<string, number>>((list, it) => {
+      const diff = getDiffOfHours(it.start, it.finish)
+      const hours = getHoursOrZero(diff)
+
+      list[it.tech] = (list?.[it.tech] || 0) + hours
 
       return list
-    }, {} as { [key in LangEnum]: number })
+    }, {})
   }
 
   const textAmountsByLang = useMemo(() => {
-    const list = calcAmountByLang()
+    const list = calcAmountByTech()
 
-    return getTypedKeys(list).map((key) => {
-      return `(${listOfRate[key]} * ${roundNumber(list[key], 2)})`
+    return Object.keys(list).map((key) => {
+      const data = options.listOfTech.find(it => it.key === key)
+      return `(${data?.rate || 0} * ${roundNumber(list[key]!, 2)})`
     }).join(' + ')
   }, [filteredTable, selectedRows])
 

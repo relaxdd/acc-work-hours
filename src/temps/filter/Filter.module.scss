@@ -4,6 +4,12 @@
   row-gap: 15px;
 }
 
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .overview {
   display: flex;
   justify-content: flex-end;

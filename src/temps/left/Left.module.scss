@@ -1,3 +1,12 @@
+%reset-btn {
+  display: inline-flex;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -24,11 +33,43 @@
 
 .item {
   display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+
+  &.itemDetails {
+    .details {
+      display: flex;
+    }
+
+    .info > button > img {
+      transform: rotate(-180deg);
+    }
+  }
+}
+
+.header {
+  display: flex;
   align-items: center;
   justify-content: space-between;
 
-  &:hover .actions {
-    display: flex;
+  // &:hover .actions {
+  //   display: flex;
+  // }
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  column-gap: 7px;
+  cursor: pointer;
+
+  > button {
+    @extend %reset-btn;
+
+    > img {
+      // transition: transform .1s ease-out;
+      height: 24px;
+    }
   }
 }
 
@@ -37,16 +78,11 @@
 }
 
 .actions {
-  display: none;
+  display: flex;
   column-gap: 10px;
 
   > button {
-    display: inline-flex;
-    border: none;
-    outline: none;
-    padding: 0;
-    margin: 0;
-    background-color: transparent;
+    @extend %reset-btn;
 
     > img {
       height: 18px;
@@ -58,18 +94,51 @@
   }
 }
 
+.details {
+  display: none;
+  flex-direction: column;
+  row-gap: 5px;
+
+  > p {
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+}
+
+.detailsName {
+  flex: 100% 1;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.detailsValue {
+  flex: 100% 1;
+  font-weight: 400;
+  font-size: 15px;
+}
+
 .create {
   display: flex;
   column-gap: 10px;
 }
 
 .floating {
-  position: absolute;
-  left: 15px;
-  top: 15px;
+  position: fixed;
+  z-index: 99;
 
   input[type="button"] {
     font-weight: 500;
     padding: 6px 14px;
+  }
+
+  @media screen and (max-width: 991px) {
+    left: 15px;
+    bottom: 15px;
+  }
+
+  @media screen and (min-width: 992px) {
+    left: 15px;
+    top: 15px;
   }
 }

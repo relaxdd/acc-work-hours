@@ -1,5 +1,5 @@
-import FilterLang from './FilterLang'
-import { Actions, defTableFilter, useTableContext } from '../../context/TableContext'
+import FilterTech from './FilterTech'
+import { Actions, defTableFilter, useTableContext } from '@/context/TableContext'
 import FilterDate from './FilterDate'
 import scss from './Filter.module.scss'
 import { createContext, useContext } from 'react'
@@ -29,30 +29,44 @@ const FilterOverview = () => {
   }
 
   return (
-    <div className={scss.overview}>
-      <div>
-        <input
-          type="button"
-          className="btn btn-secondary"
-          value="Настройки"
-          onClick={showSettingModal}
-        />
-      </div>
-      <div className="col-3">
-        <FilterDate/>
+    <div className={scss.between}>
+      <div className={scss.overview}>
+        <div>
+          <input
+            type="button"
+            className="btn btn-warning"
+            value="Аналитика"
+            disabled
+          />
+        </div>
+
+        <div>
+          <input
+            type="button"
+            className="btn btn-secondary"
+            value="Настройки"
+            onClick={showSettingModal}
+          />
+        </div>
       </div>
 
-      <div className="col-3">
-        <FilterLang/>
-      </div>
+      <div className={scss.overview}>
+        <div>
+          <FilterDate/>
+        </div>
 
-      <div className="col-2">
-        <input
-          type="button"
-          className="btn w-100 btn-outline-primary"
-          value="Сбросить"
-          onClick={resetFilter}
-        />
+        <div>
+          <FilterTech/>
+        </div>
+
+        <div>
+          <input
+            type="button"
+            className="btn w-100 btn-outline-primary"
+            value="Сбросить"
+            onClick={resetFilter}
+          />
+        </div>
       </div>
     </div>
   )

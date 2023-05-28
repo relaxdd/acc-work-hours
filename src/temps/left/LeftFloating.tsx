@@ -1,6 +1,6 @@
 import React from 'react'
 import scss from './Left.module.scss'
-import { Actions, useTableContext } from 'context/TableContext'
+import { Actions, useTableContext } from '@/context/TableContext'
 
 const LeftFloating = () => {
   const [{ leftVisible }, dispatch, payload] = useTableContext()
