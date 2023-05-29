@@ -32,10 +32,12 @@ const Left = () => {
     setListOfDetails(buildListOfDetails(listOfTables))
   }, [listOfTables])
 
-  function setItemVisible(id: string) {
+  function setItemVisible(id: string, force?: boolean) {
     setListOfDetails((prev) => {
       return prev.map((it) => ({
-        ...it, isVisible: it.id === id ? !it.isVisible : false,
+        ...it, isVisible: it.id === id
+          ? (force === undefined ? !it.isVisible : force)
+          : false,
       }))
     })
   }
@@ -73,6 +75,22 @@ const Left = () => {
     TableService.activeTable = item.id
   }
 
+  function onRenameTableItem(id: string, name: string) {
+    const isExist = listOfTables.find(it => it.name === name)
+    if (!name || isExist !== undefined) return
+
+    const list = listOfTables.map((it) => {
+      return it.id !== id ? it : { ...it, name }
+    })
+
+    dispatch({
+      type: Actions.Rewrite,
+      payload: payload('listOfTables', list),
+    })
+
+    TableService.listOfTablesInfo = list
+  }
+
 
   return (
     <>
@@ -91,7 +109,8 @@ const Left = () => {
                     {listOfDetails.map((it) => (
                       <LeftItem
                         data={it}
-                        toggle={setItemVisible}
+                        onToggle={setItemVisible}
+                        onRename={onRenameTableItem}
                         key={it.id}
                       />
                     ))}

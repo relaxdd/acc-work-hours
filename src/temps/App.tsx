@@ -1,11 +1,11 @@
 import Table from './table/Table'
 import Wrapper from './Wrapper'
-import { IWorkTable, IWorkTableRow } from 'types'
+import { ITableOptions, IWorkTable, IWorkTableRow } from 'types'
 import { Actions, defTableContext, ITableStore, TableContext, tableReducer, wrapPayload } from 'context/TableContext'
 import { useEffect, useReducer, useState } from 'react'
 import TableButtons from './table/TableButtons'
 import Filter from './filter/Filter'
-import { getAllIds } from '@/utils'
+import { getAllIds, getTypedKeys } from '@/utils'
 import Left from './left/Left'
 import DescriptionModal from './DescriptionModal'
 import TableService from '@/service/TableService'
@@ -13,6 +13,7 @@ import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
 import Empty from './Empty'
 import SettingModal from './setting/SettingModal'
 import CompareData from '@/utils/class/CompareData'
+import { appVersion } from '@/defines'
 
 type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
 
@@ -34,8 +35,27 @@ function getBoundPartsOfStore(table: IWorkTableRow[]): BoundPartsOfStore {
   }
 }
 
-function getActiveOptions(id: string | null) {
-  return id ? TableService.getActiveOptions(id) ?? defTableContext.options : defTableContext.options
+function getActiveOptions(id: string | null, def = defTableContext.options) {
+  if (appVersion.code < 213023) {
+    console.warn('Need reformat legacy options!')
+    return def
+  }
+
+  let check = false
+
+  const options = id ? (() => {
+    check = true
+    return TableService.getActiveOptions(id)
+  })() ?? def : def
+
+  if (check) {
+    return getTypedKeys(def).reduce<Record<string, any>>((list, key) => {
+      list[key] = key in options ? options[key] : def[key]
+      return list
+    }, {}) as ITableOptions
+  }
+
+  return options
 }
 
 function getInitStore(): ITableStore {
@@ -45,12 +65,13 @@ function getInitStore(): ITableStore {
   if (!active) return defTableContext
 
   const table = TableService.getActiveTableData(active.id)
+  const options = getActiveOptions(active.id)
 
   return {
     ...defTableContext,
     activeTable: active && active.id,
     listOfTables: TableService.listOfTablesInfo,
-    options: getActiveOptions(active.id),
+    options,
     ...getBoundPartsOfStore(table),
   }
 }
@@ -93,7 +114,7 @@ function App() {
       type: Actions.State,
       payload: {
         ...getBoundPartsOfStore(table),
-        options: getActiveOptions(store.activeTable),
+        options: getActiveOptions(store.activeTable!),
       },
     })
   }, [store.activeTable])

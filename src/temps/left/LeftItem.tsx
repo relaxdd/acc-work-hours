@@ -1,20 +1,68 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { Actions, useTableContext } from '@/context/TableContext'
 import TableService from '@/service/TableService'
+import type { IWorkTableWithActive } from '@/temps/left/Left'
 import scss from './Left.module.scss'
 import select from '@svg/select.svg'
 import greenSelect from '@svg/select-green.svg'
 import remove from '@svg/remove-bold-red.svg'
 import caret from '@svg/caret-down-big.svg'
-import { IWorkTableWithActive } from '@/temps/left/Left'
+import edit from '@svg/edit.svg'
 
-interface LeftItemProps {
-  data: IWorkTableWithActive
-  toggle: (id: string) => void
+interface DetailsProps {
+  item: IWorkTableWithActive
 }
 
-const LeftItem: FC<LeftItemProps> = ({ data, toggle }) => {
+const Details: FC<DetailsProps> = ({ item }) => {
+  function getDisplayDateTime() {
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit', month: 'long', year: 'numeric',
+      hour: 'numeric', minute: 'numeric',
+    }
+
+    return new Date(item.created).toLocaleString('Ru-ru', options)
+  }
+
+  return (
+    <div className={scss.details}>
+      <p>
+        <span className={scss.detailsName}>Идентификатор: </span>
+        <span className={scss.detailsValue}>{item.id}</span>
+      </p>
+
+      <p>
+        <span className={scss.detailsName}>Дата создания: </span>
+        <span className={scss.detailsValue}>{getDisplayDateTime()}</span>
+      </p>
+
+      <p>
+        <span className={scss.detailsName}>Количество строк: </span>
+        <span className={scss.detailsValue}>{item.count} шт.</span>
+      </p>
+
+      <p>
+        <span className={scss.detailsName}>Пароль: </span>
+        <span className={scss.detailsValue}>{item.password ? 'Да' : 'Нет'}</span>
+      </p>
+    </div>
+  )
+}
+
+interface LeftItemProps {
+  data: IWorkTableWithActive,
+  onToggle: (id: string, force?: boolean) => void,
+  onRename: (id: string, name: string) => void
+}
+
+const LeftItem: FC<LeftItemProps> = ({ data, onToggle, onRename }) => {
   const [{ activeTable }, dispatch, payload] = useTableContext()
+  const [rename, setRename] = useState(false)
+  const ref = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    if (!rename) return
+    ref.current?.focus()
+  }, [rename])
 
   function isActive() {
     return activeTable === data.id
@@ -54,16 +102,13 @@ const LeftItem: FC<LeftItemProps> = ({ data, toggle }) => {
   }
 
   function onToggleDetails() {
-    toggle(data.id)
+    if (rename) return
+    onToggle(data.id)
   }
 
-  function getDisplayDateTime() {
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit', month: 'long', year: 'numeric',
-      hour: 'numeric', minute: 'numeric',
-    }
-
-    return new Date(data.created).toLocaleString('Ru-ru', options)
+  function onRenameTable() {
+    onToggle(data.id, false)
+    setRename(true)
   }
 
   return (
@@ -71,10 +116,35 @@ const LeftItem: FC<LeftItemProps> = ({ data, toggle }) => {
       <div className={scss.header}>
         <div className={scss.info} onClick={onToggleDetails}>
           <button><img src={caret} alt="toggle-details"/></button>
-          <p className={scss.name}>{data.name}</p>
+
+          {rename
+            ? (
+              <input
+                type="text"
+                className="form-control"
+                defaultValue={data.name}
+                ref={ref}
+                onBlur={({ target }) => {
+                  if (data.name !== target.value)
+                    onRename(data.id, target.value)
+
+                  setRename(false)
+                }}
+              />
+            )
+            : (<p className={scss.name}>{data.name}</p>)
+          }
+
         </div>
 
         <div className={scss.actions}>
+          <button
+            onClick={onRenameTable}
+            title="Переименовать таблицу"
+          >
+            <img src={edit} alt="edit-icon" style={{ height: '16px' }}/>
+          </button>
+
           <button
             onClick={setActiveTable}
             disabled={isActive()}
@@ -89,22 +159,7 @@ const LeftItem: FC<LeftItemProps> = ({ data, toggle }) => {
         </div>
       </div>
 
-      <div className={scss.details}>
-        <p>
-          <span className={scss.detailsName}>Дата создания: </span>
-          <span className={scss.detailsValue}>{getDisplayDateTime()}</span>
-        </p>
-
-        <p>
-          <span className={scss.detailsName}>Количество строк: </span>
-          <span className={scss.detailsValue}>{data.count} шт.</span>
-        </p>
-
-        <p>
-          <span className={scss.detailsName}>Пароль: </span>
-          <span className={scss.detailsValue}>{data.password ? 'Да' : 'Нет'}</span>
-        </p>
-      </div>
+      <Details item={data}/>
     </div>
   )
 }

@@ -75,6 +75,12 @@ export const getHoursOrZero = (qty: number) => isNaN(qty) ? 0 : ceilHours(qty)
 //   }
 // }
 
+export function swapArrayItems<T = any>(arr: T[], from: number, to: number) {
+  const temp = arr[from]
+  arr[from] = arr[to]!
+  arr[to] = temp!
+}
+
 export function roundDateTime(datetime: string, step: number) {
   type Result = { minutes: string, isIncrease: boolean }
 

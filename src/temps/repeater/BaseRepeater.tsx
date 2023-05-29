@@ -4,10 +4,11 @@ import React, { useEffect } from 'react'
 import CompareData from '@/utils/class/CompareData'
 
 type SomeObject<T = any> = { [key: string | number]: T }
-type RepeaterDispatch<T> = (key: keyof T, value: any, index: number) => void
 type BaseTypes = 'number' | 'string' | 'boolean' | 'array';
 type AllowedTypes = number | string | boolean | any[];
 type ListOfTypes<T = Record<string, any>> = { [key in keyof T]: BaseTypes; };
+
+export type RepeaterDispatch<T> = (key: keyof T, value: any, index: number) => void
 
 interface BaseRepeaterProps<T> {
   data: Array<T>,

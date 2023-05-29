@@ -17,7 +17,7 @@ const FilterTech = () => {
       value={filter.tech}
       onChange={dispatchLang}
     >
-      <option value="none">По стеку</option>
+      <option value="none">По сущности</option>
 
       {options.listOfTech.map((it, i) => (
         <option value={it.key} key={i}>{it.text}</option>

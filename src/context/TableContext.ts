@@ -95,6 +95,16 @@ export const defTableContext: ITableStore = {
   },
   options: {
     dtRoundStep: 10,
+    typeOfAdding: 'fast',
+    hiddenCols: {
+      number: false,
+      description: false,
+    },
+    usingKeys: {
+      delete: 'Delete',
+      up: 'ArrowUp',
+      down: 'ArrowDown',
+    },
     listOfTech: [
       { key: 'base', text: 'Базовый', rate: 200 },
     ],

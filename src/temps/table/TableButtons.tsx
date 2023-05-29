@@ -29,7 +29,8 @@ const TableButtons = () => {
   }
 
   function addTableRow() {
-    const start = roundDateTime(getFormattedDateTime(), options.dtRoundStep)
+    const dt = getFormattedDateTime()
+    const start = options.dtRoundStep ? roundDateTime(dt, options.dtRoundStep) : dt
     const finish = getDateTimeWithOffset(1.5, start)
 
     if (!options.listOfTech.length) {
@@ -211,17 +212,17 @@ const TableButtons = () => {
 
       <input
         type="button"
-        value="Добавить"
-        className="btn btn-secondary"
-        onClick={addTableRow}
-      />
-
-      <input
-        type="button"
         value="Сохранить"
         className="btn btn-primary"
         disabled={CompareData.isEquals(initialTable, modifiedTable)}
         onClick={saveWorkTableData}
+      />
+
+      <input
+        type="button"
+        value="Добавить"
+        className="btn btn-secondary"
+        onClick={addTableRow}
       />
     </div>
   )

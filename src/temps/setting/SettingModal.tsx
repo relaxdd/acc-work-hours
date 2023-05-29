@@ -8,9 +8,14 @@ import { getTypedKeys } from '@/utils'
 import { ITableOptions } from '@/types'
 import CompareData from '@/utils/class/CompareData'
 import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
+import scss from './SettingModal.module.scss'
+import BindingKey from '@/temps/setting/BindingKey'
+import EntityRepeater from '@/temps/setting/EntityRepeater'
+import { appVersion } from '@/defines'
 
 const SettingModal = () => {
   const [{ settingVisible, options, activeTable }, dispatch, payload] = useTableContext()
+
   const [modified, setModified] = useState(options)
   const [password, setPassword] = useState('')
 
@@ -51,11 +56,17 @@ const SettingModal = () => {
 
   function validateOptions(): boolean {
     const names: Record<keyof ITableOptions, string> = {
+      typeOfAdding: 'Вариант добавления',
+      hiddenCols: 'Скрытые столбцы',
       dtRoundStep: 'Шаг округления',
       listOfTech: 'Сущности',
+      usingKeys: 'Используемые клавиши',
     }
 
     const validate: Record<keyof ITableOptions, boolean[]> = {
+      typeOfAdding: [],
+      hiddenCols: [],
+      usingKeys: [],
       dtRoundStep: [
         typeof modified.dtRoundStep === 'number',
         modified.dtRoundStep <= 15,
@@ -68,6 +79,8 @@ const SettingModal = () => {
         }),
       ],
     }
+
+    /* ============================================== */
 
     const msg = (key: keyof ITableOptions) => {
       alert(`Ошибка в настройках, исправьте поле "${names[key]}"`)
@@ -102,8 +115,7 @@ const SettingModal = () => {
       onHide={handleClose}
       centered
       scrollable
-      // backdrop="static"
-      // keyboard={false}
+      size="lg"
     >
       <Modal.Header closeButton>
         <Modal.Title>Настройки</Modal.Title>
@@ -135,6 +147,24 @@ const SettingModal = () => {
         <hr/>
 
         <div className="mb-3">
+          <label htmlFor="typeOfAdding">Вариант добавления строки</label>
+
+          <select
+            id="typeOfAdding"
+            className="form-select mt-2"
+            value={modified.typeOfAdding}
+            onChange={({ target }) => {
+              setModified(prev => ({ ...prev,
+                typeOfAdding: target.value as 'fast' | 'full'
+              }))
+            }}
+          >
+            <option value="fast">Быстрый</option>
+            <option value="full">Подробно</option>
+          </select>
+        </div>
+
+        <div className="mb-3">
           <label htmlFor="dtRoundStep">Шаг округления даты</label>
 
           <select
@@ -161,53 +191,114 @@ const SettingModal = () => {
           onChange={(list) => {
             setModified(prev => ({ ...prev, listOfTech: list }))
           }}
-          onRender={([item, change], i) => (
-            <>
-              <input
-                type="text"
-                className="form-control"
-                value={item.key}
-                onChange={({ target }) => change('key', target.value, i)}
-                placeholder="Ключ"
-              />
-
-              <input
-                type="text"
-                className="form-control"
-                value={item.text}
-                onChange={({ target }) => change('text', target.value, i)}
-                placeholder="Текст"
-              />
-
-              <input
-                type="number"
-                className="form-control"
-                value={item.rate}
-                step={10}
-                onChange={({ target }) => change('rate', target.value, i)}
-                placeholder="Ставка"
-              />
-            </>
+          onRender={(state, i) => (
+            <EntityRepeater state={state} i={i}/>
           )}
         />
+
+        <hr/>
+
+        <div>
+          <p style={{ marginBottom: '8px' }}>Скрытые столбцы</p>
+
+          <div>
+            <div className="form-check form-check-inline">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                checked={modified.hiddenCols.number}
+                onChange={() => {
+                  setModified(prev => {
+                    return {
+                      ...prev, hiddenCols: {
+                        ...prev.hiddenCols,
+                        number: !prev.hiddenCols.number,
+                      },
+                    }
+                  })
+                }}
+              />
+
+              <label>Нумерация</label>
+            </div>
+
+            <div className="form-check form-check-inline">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                checked={modified.hiddenCols.description}
+                onChange={() => {
+                  setModified(prev => {
+                    return {
+                      ...prev, hiddenCols: {
+                        ...prev.hiddenCols,
+                        description: !prev.hiddenCols.description,
+                      },
+                    }
+                  })
+                }}
+              />
+
+              <label>Описание</label>
+            </div>
+          </div>
+
+        </div>
+
+        <hr/>
+
+        <div>
+          <div style={{ marginBottom: '15px' }}>
+            <p style={{ marginBottom: '0px' }}>Используемые клавиши</p>
+            <span className="small mb-1">Примечание: что бы использовать действия на элементе таблицы
+            кликните по строке в любое место</span>
+          </div>
+
+          <div className={scss.listBindingKeys}>
+            {getTypedKeys(modified.usingKeys).map(((key) => {
+              return (
+                <BindingKey
+                  id={key}
+                  modified={modified}
+                  setModified={setModified}
+                  key={key}
+                />
+              )
+            }))}
+          </div>
+        </div>
       </Modal.Body>
 
       <Modal.Footer>
-        <input
-          type="button"
-          className="btn btn-secondary"
-          value="Сбросить"
-          onClick={() => setModified(options)}
-          disabled={CompareData.isEquals(options, modified)}
-        />
+        <div className="w-100 d-flex justify-content-between align-items-center">
+          <div>
+            <span className="small" style={{ fontWeight: '500' }}>v{appVersion.name}</span>
+          </div>
 
-        <input
-          type="button"
-          className="btn btn-primary"
-          value="Сохранить"
-          onClick={saveModifiedOptions}
-          disabled={CompareData.isEquals(options, modified)}
-        />
+          <div style={{
+            display: 'flex',
+            flexShrink: '0',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            columnGap: '10px',
+          }}>
+            <input
+              type="button"
+              className="btn btn-secondary"
+              value="Сбросить"
+              onClick={() => setModified(options)}
+              disabled={CompareData.isEquals(options, modified)}
+            />
+
+            <input
+              type="button"
+              className="btn btn-primary"
+              value="Сохранить"
+              onClick={saveModifiedOptions}
+              disabled={CompareData.isEquals(options, modified)}
+            />
+          </div>
+        </div>
       </Modal.Footer>
     </Modal>
   )

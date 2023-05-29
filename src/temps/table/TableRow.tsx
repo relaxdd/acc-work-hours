@@ -3,6 +3,7 @@ import { formatDate, getDiffOfHours, getHoursOrZero, getTimeByDT } from '@/utils
 import type { FieldsEnum, IWorkTableRow } from '@/types'
 import { DTEnum } from '@/types'
 import { Actions, ChangeDateTime, useTableContext } from '@/context/TableContext'
+import { TableRowActions } from '@/temps/table/Table'
 
 type Nullable<T> = T | null
 
@@ -14,7 +15,7 @@ interface WTRowProps {
   data: IWorkTableRow,
   index: number,
   changeDT: ChangeDateTime,
-  deleteTableRow: (id: string) => void
+  onAction: (action: TableRowActions, id: string) => void
 }
 
 const defWritingData: WriterList = {
@@ -28,7 +29,7 @@ function calcWorkHours(data: IWorkTableRow) {
   return getHoursOrZero(getDiffOfHours(data.start, data.finish))
 }
 
-const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => {
+const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
   const [{ filteredTable, selectedRows, options }, dispatch, payload] = useTableContext()
   // state
   const [writingMode, setWritingMode] = useState(defWritingData)
@@ -76,13 +77,22 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
     changeDT(key, value, data.id)
   }
 
-  function onDeleteHandle(e: React.KeyboardEvent<HTMLTableRowElement>) {
+  function onPressHandle(e: React.KeyboardEvent<HTMLTableRowElement>) {
     e.preventDefault()
 
-    if (e.key !== 'Delete') return
-    if (!window.confirm(`Хотите удалить строку '${index + 1}'?`)) return
-
-    deleteTableRow(data.id)
+    switch (e.code) {
+      case (options?.usingKeys?.delete || 'Delete'):
+        const msg = `Хотите удалить строку '${index + 1}'?`
+        if (!window.confirm(msg)) return
+        onAction('delete', data.id)
+        break
+      case (options?.usingKeys?.up || 'ArrowUp'):
+        onAction('moveUp', data.id)
+        break
+      case (options?.usingKeys?.down || 'ArrowDown'):
+        onAction('moveDown', data.id)
+        break
+    }
   }
 
   function dispatchSelected(value: string[]) {
@@ -100,8 +110,10 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
   }
 
   return (
-    <tr tabIndex={index} onKeyDown={onDeleteHandle}>
-      <td>{index + 1}</td>
+    <tr tabIndex={index} onKeyDown={onPressHandle}>
+      {!options.hiddenCols.number && (
+        <td>{index + 1}</td>
+      )}
       <td>{diffDate}</td>
       <td
         onDoubleClick={() => changeWritingMode('start', true)}
@@ -198,21 +210,23 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, deleteTableRow }) => 
           onChange={toggleCheckHours}
         />
       </td>
-      <td
-        style={{ padding: '5px 7px' }}
-        onDoubleClick={(e) => {
-          e.preventDefault()
+      {!options.hiddenCols.description && (
+        <td
+          style={{ padding: '5px 7px' }}
+          onDoubleClick={(e) => {
+            e.preventDefault()
 
-          dispatch({
-            type: Actions.Rewrite,
-            payload: payload('modalVisible', {
-              id: data.id, visible: true,
-            }),
-          })
-        }}
-      >
-        {data.description.slice(0, 35).trim() + (data.description.length > 25 ? '...' : '')}
-      </td>
+            dispatch({
+              type: Actions.Rewrite,
+              payload: payload('modalVisible', {
+                id: data.id, visible: true,
+              }),
+            })
+          }}
+        >
+          {data.description.slice(0, 35).trim() + (data.description.length > 25 ? '...' : '')}
+        </td>
+      )}
     </tr>
   )
 }

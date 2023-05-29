@@ -7,9 +7,18 @@ export type IAppSettings = {
 
 export type ITableOptionsTech = { key: string, text: string, rate: number }
 
+export type ListOfHiddenCol =  'number' | 'description'
+export type ITableOptionsHidden = Record<ListOfHiddenCol, boolean>
+
+export type ListOfUsingKeys =  'delete' | 'up' | 'down'
+export type ITableOptionsKeys= Record<ListOfUsingKeys, string>
+
 export type ITableOptions = {
   dtRoundStep: number,
   listOfTech: ITableOptionsTech[]
+  hiddenCols: ITableOptionsHidden
+  usingKeys: ITableOptionsKeys,
+  typeOfAdding: 'fast' | 'full'
 }
 
 export interface IWorkTable {

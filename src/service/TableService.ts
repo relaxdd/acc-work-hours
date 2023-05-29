@@ -112,10 +112,6 @@ class TableService {
 
     alert('Not Implemented!')
   }
-
-  public static freshTableInfoCount(id: string) {
-
-  }
 }
 
 export default TableService

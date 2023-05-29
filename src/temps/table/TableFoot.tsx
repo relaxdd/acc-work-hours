@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { getAllIds, getDiffOfHours, getHoursOrZero, roundNumber } from '@/utils'
+import { getAllIds, getDiffOfHours, getHoursOrZero, round, roundNumber } from '@/utils'
 import { Actions, useTableContext } from '@/context/TableContext'
 
 const TableFoot = () => {
@@ -64,8 +64,8 @@ const TableFoot = () => {
   return (
     <tfoot>
     <tr>
-      <td colSpan={4}>Всего рабочих часов</td>
-      <td colSpan={1}>{totalHours} ч.</td>
+      <td colSpan={options.hiddenCols.number ? 3 : 4}>Всего рабочих часов</td>
+      <td colSpan={1}>{round(totalHours)} ч.</td>
       <td colSpan={2}>Выбрать всё</td>
       <td>
         <input
@@ -75,12 +75,14 @@ const TableFoot = () => {
           onChange={() => toggleCheckAll(!checkAll)}
         />
       </td>
-      <td>&nbsp;</td>
+      {!options.hiddenCols.description && (
+        <td>&nbsp;</td>
+      )}
     </tr>
     <tr>
-      <td colSpan={4}>Итоговая сумма оплаты</td>
+      <td colSpan={options.hiddenCols.number ? 3 : 4}>Итоговая сумма оплаты</td>
       <td>{roundNumber(totalPayment).toFixed(2)} ₽</td>
-      <td colSpan={4}>{textAmountsByLang}</td>
+      <td colSpan={options.hiddenCols.description ? 3 : 4}>{textAmountsByLang}</td>
     </tr>
     </tfoot>
   )
