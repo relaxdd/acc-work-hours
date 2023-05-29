@@ -1,0 +1,42 @@
+.title {
+  margin-bottom: 15px;
+}
+
+.details {
+  display: flex;
+  align-items: center;
+  -webkit-column-gap: 7px;
+  -moz-column-gap: 7px;
+  column-gap: 15px;
+}
+
+.icon {
+  height: 18px;
+}
+
+.hidden {
+  display: none;
+}
+
+.active {
+  .details {
+    margin-bottom: 10px;
+  }
+
+  .icon {
+    transform: rotate(-180deg);
+  }
+
+  .hidden {
+    display: block;
+  }
+}
+
+.list {
+  list-style-type: decimal;
+  margin-bottom: 0;
+
+  li:not(:last-child) {
+    margin-bottom: 5px;
+  }
+}

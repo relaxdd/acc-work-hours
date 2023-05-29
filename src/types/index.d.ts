@@ -2,16 +2,18 @@ export type FieldsEnum = 'start' | 'finish' | 'tech' | 'paid'
 export type DTEnum = 'start' | 'finish'
 
 export type IAppSettings = {
-  theme: 'dark' | 'light' | 'system'
+  theme: 'dark' | 'light' | 'system',
+  password: string,
+  isDisabled: boolean
 }
 
 export type ITableOptionsTech = { key: string, text: string, rate: number }
 
-export type ListOfHiddenCol =  'number' | 'description'
+export type ListOfHiddenCol = 'number' | 'description'
 export type ITableOptionsHidden = Record<ListOfHiddenCol, boolean>
 
-export type ListOfUsingKeys =  'delete' | 'up' | 'down'
-export type ITableOptionsKeys= Record<ListOfUsingKeys, string>
+export type ListOfUsingKeys = 'delete' | 'up' | 'down'
+export type ITableOptionsKeys = Record<ListOfUsingKeys, string>
 
 export type ITableOptions = {
   dtRoundStep: number,

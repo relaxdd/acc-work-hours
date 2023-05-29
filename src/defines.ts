@@ -2,6 +2,6 @@
 // pa = 0 | alpha = 1 | beta = 2 | cr = 3
 
 export const appVersion = {
-  name: '2.1.4-beta-1',
-  code: 214021,
+  name: '2.1.4-beta-2',
+  code: 214022,
 }

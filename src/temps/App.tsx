@@ -10,10 +10,11 @@ import Left from './left/Left'
 import DescriptionModal from './DescriptionModal'
 import TableService from '@/service/TableService'
 import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
-import Empty from './Empty'
+import Empty from './empty/Empty'
 import SettingModal from './setting/SettingModal'
 import CompareData from '@/utils/class/CompareData'
 import { appVersion } from '@/defines'
+import { getAppSettings } from '@/utils/login'
 
 type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
 
@@ -71,7 +72,7 @@ function getInitStore(): ITableStore {
     ...defTableContext,
     activeTable: active && active.id,
     listOfTables: TableService.listOfTablesInfo,
-    options,
+    options, settings: getAppSettings(),
     ...getBoundPartsOfStore(table),
   }
 }

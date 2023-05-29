@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal } from 'react-bootstrap'
 import { Actions, useTableContext } from '@/context/TableContext'
-import { setAccessPassword } from '@/utils/login'
+import { setAccessPassword, updateAppSetting } from '@/utils/login'
 import BaseRepeater from '@/temps/repeater/BaseRepeater'
 import TableService from '@/service/TableService'
 import { getTypedKeys } from '@/utils'
@@ -14,7 +14,7 @@ import EntityRepeater from '@/temps/setting/EntityRepeater'
 import { appVersion } from '@/defines'
 
 const SettingModal = () => {
-  const [{ settingVisible, options, activeTable }, dispatch, payload] = useTableContext()
+  const [{ settingVisible, options, activeTable, settings }, dispatch, payload] = useTableContext()
 
   const [modified, setModified] = useState(options)
   const [password, setPassword] = useState('')
@@ -109,6 +109,13 @@ const SettingModal = () => {
     })
   }
 
+  const [isDisabled, setDisabled] = useState(settings.isDisabled)
+
+  function changePasswordSetting() {
+    setDisabled(prev => !prev)
+    updateAppSetting('isDisabled', !isDisabled)
+  }
+
   return (
     <Modal
       show={settingVisible}
@@ -133,15 +140,27 @@ const SettingModal = () => {
               autoComplete="none"
               value={password}
               onChange={({ target }) => setPassword(target.value)}
+              readOnly={isDisabled}
             />
 
             <input
               type="button"
               className="btn btn-primary"
               value="Сохранить"
+              disabled={isDisabled}
               onClick={updateAccessPassword}
             />
           </div>
+        </div>
+
+        <div className="form-check form-check-inline mt-3">
+          <input
+            type="checkbox"
+            className="form-check-input"
+            checked={isDisabled}
+            onChange={changePasswordSetting}
+          />
+          <label>Отключить</label>
         </div>
 
         <hr/>
@@ -154,8 +173,9 @@ const SettingModal = () => {
             className="form-select mt-2"
             value={modified.typeOfAdding}
             onChange={({ target }) => {
-              setModified(prev => ({ ...prev,
-                typeOfAdding: target.value as 'fast' | 'full'
+              setModified(prev => ({
+                ...prev,
+                typeOfAdding: target.value as 'fast' | 'full',
               }))
             }}
           >

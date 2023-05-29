@@ -1,5 +1,6 @@
 import { createContext, Dispatch, useContext } from 'react'
 import { DTEnum, IAppSettings, ITableOptions, IWorkTable, IWorkTableRow } from '@/types'
+import { defAppSetting } from '@/utils/login'
 
 // export type DispatchTableData<T extends Object> = (key: keyof T, value: T[keyof T], index: number) => void
 export type ChangeDateTime = (type: DTEnum, value: string, id: string) => void
@@ -90,9 +91,7 @@ export const defTableContext: ITableStore = {
   selectedRows: [],
   modalVisible: defModalVisible,
   filter: defTableFilter,
-  settings: {
-    theme: 'system',
-  },
+  settings: defAppSetting,
   options: {
     dtRoundStep: 10,
     typeOfAdding: 'fast',

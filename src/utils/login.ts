@@ -1,11 +1,9 @@
 import md5 from 'crypto-js/md5'
 import { getDateTimeWithOffset, getFormattedDateTime } from './index'
-
-export const LS_ACCESS_KEY = '_awenn2015_wh_access'
+import { LS_SETTING_KEY } from '@/data'
+import { IAppSettings } from '@/types'
 
 const LS_TIME_KEY = '_awenn2015_wh_time'
-// '34c5687ae683e42be4912504672c3831'
-const PASSWORD_HASH = window.localStorage.getItem(LS_ACCESS_KEY) ?? 'd8578edf8458ce06fbc5bb76a58c5ca4'
 const isLocalhost = window.location.hostname === 'localhost'
 
 export function saveDateAccess() {
@@ -13,6 +11,22 @@ export function saveDateAccess() {
   window.localStorage.setItem(LS_TIME_KEY, date)
 
   console.log(window.localStorage.getItem(LS_TIME_KEY))
+}
+
+export const defAppSetting: IAppSettings = {
+  theme: 'system',
+  password: 'd8578edf8458ce06fbc5bb76a58c5ca4',
+  isDisabled: true,
+}
+
+export function getAppSettings(): IAppSettings {
+  const json = localStorage.getItem(LS_SETTING_KEY)
+  return json ? JSON.parse(json) : defAppSetting
+}
+
+export function updateAppSetting<T extends IAppSettings, K extends keyof T>(key: K, value: T[K]) {
+  const update: IAppSettings = { ...getAppSettings(), [key]: value }
+  window.localStorage.setItem(LS_SETTING_KEY, JSON.stringify(update))
 }
 
 export function setAccessPassword(password: string, cb?: () => void) {
@@ -31,19 +45,23 @@ export function setAccessPassword(password: string, cb?: () => void) {
     return
   }
 
-  window.localStorage.setItem(LS_ACCESS_KEY, md5(password).toString())
+  updateAppSetting('password', md5(password).toString())
   window.localStorage.removeItem(LS_TIME_KEY)
 
   cb && cb()
 }
 
-export function comparePassword(password: string) {
-  return md5(password).toString() === PASSWORD_HASH
+export function comparePassword(test: string) {
+  const { password } = getAppSettings()
+  return md5(test).toString() === password
 }
 
 export function needEnterPass(force?: boolean): boolean {
   if (force !== undefined) return force
-  // if (isLocalhost) return false
+  if (isLocalhost) return false
+
+  const ls = localStorage.getItem(LS_SETTING_KEY)
+  if (!ls || JSON.parse(ls)?.['isDisabled']) return false
 
   const time = window.localStorage.getItem(LS_TIME_KEY)
   if (time === null) return true
