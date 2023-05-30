@@ -5,8 +5,8 @@ import { getLocalVersion, LS_VERSION_KEY } from '@/data'
 import TableService from '@/service/TableService'
 import { appVersion } from '@/defines'
 
-function reformatLegacy214040() {
-  if (getLocalVersion() >= 214040) return
+function reformatLegacy215021(when: boolean) {
+  if (!when) return
 
   const list = TableService.listOfTablesInfo
 
@@ -23,10 +23,12 @@ function reformatLegacy214040() {
   }
 }
 
+type TestUpdate = { when: boolean, fn: (when: boolean) => void }[]
+
 const listOfUpdates = [
   {
-    when: getLocalVersion() < 214040,
-    fn: reformatLegacy214040,
+    when: getLocalVersion() < 215021,
+    fn: reformatLegacy215021,
   },
 ]
 
@@ -36,9 +38,9 @@ const Updates = () => {
   useEffect(() => {
     if (!isUpdate) return
 
-    for (const update of listOfUpdates) {
-      if (!update.when) continue
-      update.fn()
+    for (const { when, fn } of listOfUpdates) {
+      if (!when) continue
+      fn(when)
     }
 
     localStorage.setItem(LS_VERSION_KEY, String(appVersion.code))
