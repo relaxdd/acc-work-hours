@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { Modal } from 'react-bootstrap'
 import { Actions, defModalVisible, useTableContext } from '@/context/TableContext'
 
-const DescriptionModal = () => {
+const DescrModal = () => {
   const [{ modalVisible, filteredTable }, dispatch, payload] = useTableContext()
-  const [description, setDescription] = useState(getDefDescription)
+  const [descr, setDescr] = useState(getDefDescription)
 
   useEffect(() => {
     if (modalVisible.visible)
-      setDescription(getDefDescription)
+      setDescr(getDefDescription)
     else
-      setDescription(prev => prev.trim())
+      setDescr(prev => prev.trim())
   }, [modalVisible])
 
   function getDefDescription() {
@@ -30,7 +30,7 @@ const DescriptionModal = () => {
       payload: {
         key: 'description',
         id: modalVisible.id!,
-        value: description.trim(),
+        value: descr.trim(),
       },
     })
 
@@ -52,9 +52,9 @@ const DescriptionModal = () => {
         <textarea
           className="form-control"
           rows={8}
-          value={description}
+          value={descr}
           placeholder="Опишите суть вашей задачи что бы потом можно было что то с этим сделать..."
-          onChange={({ target }) => setDescription(target.value)}
+          onChange={({ target }) => setDescr(target.value)}
         />
       </Modal.Body>
       <Modal.Footer>
@@ -76,4 +76,4 @@ const DescriptionModal = () => {
   )
 }
 
-export default DescriptionModal
+export default DescrModal

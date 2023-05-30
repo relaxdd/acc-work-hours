@@ -111,6 +111,13 @@ const LeftItem: FC<LeftItemProps> = ({ data, onToggle, onRename }) => {
     setRename(true)
   }
 
+  function saveNewName(name: string) {
+    if (data.name !== name)
+      onRename(data.id, name)
+
+    setRename(false)
+  }
+
   return (
     <div className={`${scss.item} ${data.isVisible ? scss.itemDetails : ''}`}>
       <div className={scss.header}>
@@ -125,10 +132,11 @@ const LeftItem: FC<LeftItemProps> = ({ data, onToggle, onRename }) => {
                 defaultValue={data.name}
                 ref={ref}
                 onBlur={({ target }) => {
-                  if (data.name !== target.value)
-                    onRename(data.id, target.value)
-
-                  setRename(false)
+                  saveNewName(target.value)
+                }}
+                onKeyUp={(e) => {
+                  if (e.code !== 'Enter') return
+                  saveNewName((e.target as HTMLInputElement).value)
                 }}
               />
             )

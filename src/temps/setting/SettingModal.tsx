@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Modal } from 'react-bootstrap'
 import { Actions, useTableContext } from '@/context/TableContext'
-import { setAccessPassword, updateAppSetting } from '@/utils/login'
 import BaseRepeater from '@/temps/repeater/BaseRepeater'
 import TableService from '@/service/TableService'
 import { getTypedKeys } from '@/utils'
@@ -12,28 +11,22 @@ import scss from './SettingModal.module.scss'
 import BindingKey from '@/temps/setting/BindingKey'
 import EntityRepeater from '@/temps/setting/EntityRepeater'
 import { appVersion } from '@/defines'
+import SettingFields from '@/temps/setting/SettingFields'
 
 const SettingModal = () => {
-  const [{ settingVisible, options, activeTable, settings }, dispatch, payload] = useTableContext()
-
+  const [{ visibility, options, activeTable }, dispatch, payload] = useTableContext()
   const [modified, setModified] = useState(options)
-  const [password, setPassword] = useState('')
 
   useDidUpdateEffect(() => {
     setModified(options)
   }, [options])
 
-  useEffect(() => {
-    if (!settingVisible) return
-    setTimeout(() => setPassword(''), 1000)
-  }, [settingVisible])
-
   /* ============ Methods ============ */
 
   function handleClose() {
     dispatch({
-      type: Actions.Rewrite,
-      payload: payload('settingVisible', false),
+      type: Actions.Visible,
+      payload: { key: 'setting', value: false },
     })
   }
 
@@ -46,12 +39,7 @@ const SettingModal = () => {
     })
 
     TableService.updateActiveOptions(activeTable!, modified)
-  }
-
-  function updateAccessPassword() {
-    setAccessPassword(password, () => {
-      window.location.reload()
-    })
+    handleClose()
   }
 
   function validateOptions(): boolean {
@@ -109,16 +97,9 @@ const SettingModal = () => {
     })
   }
 
-  const [isDisabled, setDisabled] = useState(settings.isDisabled)
-
-  function changePasswordSetting() {
-    setDisabled(prev => !prev)
-    updateAppSetting('isDisabled', !isDisabled)
-  }
-
   return (
     <Modal
-      show={settingVisible}
+      show={visibility.setting}
       onHide={handleClose}
       centered
       scrollable
@@ -129,39 +110,7 @@ const SettingModal = () => {
       </Modal.Header>
 
       <Modal.Body>
-        <div>
-          <label htmlFor="new-password">Новый пароль для входа</label>
-
-          <div className="d-flex align-items-end gap-2">
-            <input
-              type="password"
-              id="new-password"
-              className="form-control mt-2"
-              autoComplete="none"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-              readOnly={isDisabled}
-            />
-
-            <input
-              type="button"
-              className="btn btn-primary"
-              value="Сохранить"
-              disabled={isDisabled}
-              onClick={updateAccessPassword}
-            />
-          </div>
-        </div>
-
-        <div className="form-check form-check-inline mt-3">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            checked={isDisabled}
-            onChange={changePasswordSetting}
-          />
-          <label>Отключить</label>
-        </div>
+        <SettingFields/>
 
         <hr/>
 

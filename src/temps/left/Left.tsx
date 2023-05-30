@@ -14,7 +14,7 @@ function buildListOfDetails(list: IWorkTable[]): IWorkTableWithActive[] {
 }
 
 const Left = () => {
-  const [{ leftVisible, listOfTables, activeTable }, dispatch, payload] = useTableContext()
+  const [{ visibility, listOfTables, activeTable }, dispatch, payload] = useTableContext()
 
   const [listOfDetails, setListOfDetails] = useState(() => {
     return buildListOfDetails(listOfTables)
@@ -54,8 +54,8 @@ const Left = () => {
     })
 
     dispatch({
-      type: Actions.Rewrite,
-      payload: payload('leftVisible', !leftVisible),
+      type: Actions.Visible,
+      payload: { key: 'left', value: !visibility.left },
     })
   }
 
@@ -96,7 +96,7 @@ const Left = () => {
     <>
       {activeTable && <LeftFloating/>}
 
-      <Offcanvas show={leftVisible} onHide={setLeftVisible}>
+      <Offcanvas show={visibility.left} onHide={setLeftVisible}>
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Рабочие таблицы</Offcanvas.Title>
         </Offcanvas.Header>

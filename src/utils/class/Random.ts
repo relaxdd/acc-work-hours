@@ -10,7 +10,7 @@ class Random {
   /** @deprecated */
   public static uuidv2(len: number, special: boolean, digits = false) {
     const frequency = 4
-    const list = ['!', '@', '#', '$', '%', '&']
+    // const list = ['!', '@', '#', '$', '%', '&']
 
     const qty = Math.floor(len / frequency)
     const uuid = this.uuid(len - qty)

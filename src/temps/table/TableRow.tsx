@@ -21,7 +21,7 @@ interface WTRowProps {
 const defWritingData: WriterList = {
   start: false,
   finish: false,
-  tech: false,
+  entity: false,
   paid: false,
 }
 
@@ -48,7 +48,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
   useEffect(() => {
     if (writingMode.start) startRef.current?.focus()
     if (writingMode.finish) finishRef.current?.focus()
-    if (writingMode.tech) langRef.current?.focus()
+    if (writingMode.entity) langRef.current?.focus()
     if (writingMode.paid) paidRef.current?.focus()
   }, [writingMode])
 
@@ -151,22 +151,22 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
       </td>
       <td>{qtyHours} ч.</td>
       <td
-        onDoubleClick={() => changeWritingMode('tech', true)}
+        onDoubleClick={() => changeWritingMode('entity', true)}
       >
-        {writingMode.tech
+        {writingMode.entity
           ? (
             <select
               className="form-select"
-              value={data.tech}
+              value={data.entity}
               onChange={({ target }) => {
                 dispatch({
                   type: Actions.WH_Item,
                   payload: {
-                    key: 'tech', id: data.id, value: target.value,
+                    key: 'entity', id: data.id, value: target.value,
                   },
                 })
               }}
-              onBlur={() => changeWritingMode('tech', false)}
+              onBlur={() => changeWritingMode('entity', false)}
               ref={langRef}
             >
               {options.listOfTech.map((it, i) => (
@@ -174,7 +174,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
               ))}
             </select>
           )
-          : data.tech}
+          : data.entity}
       </td>
       <td
         onDoubleClick={() => changeWritingMode('paid', true)}

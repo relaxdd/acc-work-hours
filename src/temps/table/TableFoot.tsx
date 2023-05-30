@@ -6,24 +6,12 @@ const TableFoot = () => {
   const [{ filteredTable, selectedRows, options }, dispatch, payload] = useTableContext()
   const [checkAll, setCheckAll] = useState(true)
 
-  const [totalHours, totalPayment] = useMemo(() => {
-    const filtered = filteredTable.filter(it => selectedRows.includes(it.id))
-
-    return filtered.reduce((total, it) => {
-      const hours = getHoursOrZero(getDiffOfHours(it.start, it.finish))
-      const data = options.listOfTech.find(({ key }) => key === it.tech)
-
-      return [
-        total[0] + hours,
-        total[1] + (hours * (data?.rate || 0)),
-      ]
-    }, [0, 0] as [number, number])
-  }, [filteredTable, selectedRows])
-
   useEffect(() => {
     if (!selectedRows.length) setCheckAll(false)
     else setCheckAll(true)
   }, [selectedRows])
+
+  /* ==================================== */
 
   function dispatchSelect(value: string[]) {
     dispatch({
@@ -46,11 +34,27 @@ const TableFoot = () => {
       const diff = getDiffOfHours(it.start, it.finish)
       const hours = getHoursOrZero(diff)
 
-      list[it.tech] = (list?.[it.tech] || 0) + hours
+      list[it.entity] = (list?.[it.entity] || 0) + hours
 
       return list
     }, {})
   }
+
+  /* ==================================== */
+
+  const [totalHours, totalPayment] = useMemo(() => {
+    const filtered = filteredTable.filter(it => selectedRows.includes(it.id))
+
+    return filtered.reduce((total, it) => {
+      const hours = getHoursOrZero(getDiffOfHours(it.start, it.finish))
+      const data = options.listOfTech.find(({ key }) => key === it.entity)
+
+      return [
+        total[0] + hours,
+        total[1] + (hours * (data?.rate || 0)),
+      ]
+    }, [0, 0] as [number, number])
+  }, [filteredTable, selectedRows, options.listOfTech])
 
   const textAmountsByLang = useMemo(() => {
     const list = calcAmountByTech()
@@ -59,7 +63,9 @@ const TableFoot = () => {
       const data = options.listOfTech.find(it => it.key === key)
       return `(${data?.rate || 0} * ${roundNumber(list[key]!, 2)})`
     }).join(' + ')
-  }, [filteredTable, selectedRows])
+  }, [filteredTable, selectedRows, options.listOfTech])
+
+  /* ==================================== */
 
   return (
     <tfoot>

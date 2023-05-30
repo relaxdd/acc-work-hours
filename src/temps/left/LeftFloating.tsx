@@ -3,12 +3,12 @@ import scss from './Left.module.scss'
 import { Actions, useTableContext } from '@/context/TableContext'
 
 const LeftFloating = () => {
-  const [{ leftVisible }, dispatch, payload] = useTableContext()
+  const [{ visibility }, dispatch] = useTableContext()
 
   function changeVisible() {
     dispatch({
-      type: Actions.Rewrite,
-      payload: payload('leftVisible', !leftVisible),
+      type: Actions.Visible,
+      payload: { key: 'left', value: !visibility.left },
     })
   }
 

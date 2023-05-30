@@ -2,7 +2,7 @@ import FilterTech from './FilterTech'
 import { Actions, defTableFilter, useTableContext } from '@/context/TableContext'
 import FilterDate from './FilterDate'
 import scss from './Filter.module.scss'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useEffect } from 'react'
 
 const defFilterContext = {
   isVisible: false,
@@ -18,13 +18,13 @@ const useFilterContext = () => useContext(FilterContext)
 /* Components */
 
 const FilterOverview = () => {
-  const [, dispatch, payload] = useTableContext()
+  const [, dispatch] = useTableContext()
   const { resetFilter } = useFilterContext()
 
-  function showSettingModal() {
+  function showModal(key: 'setting' | 'help') {
     dispatch({
-      type: Actions.Rewrite,
-      payload: payload('settingVisible', true),
+      type: Actions.Visible,
+      payload: { key, value: true },
     })
   }
 
@@ -45,7 +45,16 @@ const FilterOverview = () => {
             type="button"
             className="btn btn-secondary"
             value="Настройки"
-            onClick={showSettingModal}
+            onClick={() => showModal('setting')}
+          />
+        </div>
+
+        <div>
+          <input
+            type="button"
+            className="btn btn-light"
+            value="Помощь"
+            onClick={() => showModal('help')}
           />
         </div>
       </div>

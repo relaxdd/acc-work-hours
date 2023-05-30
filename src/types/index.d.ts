@@ -1,4 +1,4 @@
-export type FieldsEnum = 'start' | 'finish' | 'tech' | 'paid'
+export type FieldsEnum = 'start' | 'finish' | 'entity' | 'paid'
 export type DTEnum = 'start' | 'finish'
 
 export type IAppSettings = {
@@ -32,15 +32,15 @@ export interface IWorkTable {
   count: number
 }
 
-export interface IWorkTableRow {
+export type IWorkTableRow = {
   id: string,
   tableId: string,
   start: string,
   finish: string,
-  tech: string,
+  entity: string,
   isPaid: boolean,
   description: string
-}
+} & { tech?: string }
 
 // export type PartOfWorkTable = Pick<IWorkTable, 'id' | 'name' | 'created' | 'count'>
 export type ListOfRate = Record<string, number>

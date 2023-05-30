@@ -6,8 +6,6 @@ import Random from 'utils/class/Random'
 import { Actions, useTableContext } from 'context/TableContext'
 import TableService from '@/service/TableService'
 
-type ImportActions = 'overwrite' | 'merge'
-
 const TableButtons = () => {
   const [{
     initialTable,
@@ -28,7 +26,7 @@ const TableButtons = () => {
     })
   }
 
-  function addTableRow() {
+  function addFastTableRow() {
     const dt = getFormattedDateTime()
     const start = options.dtRoundStep ? roundDateTime(dt, options.dtRoundStep) : dt
     const finish = getDateTimeWithOffset(1.5, start)
@@ -43,7 +41,7 @@ const TableButtons = () => {
       tableId: Random.uuid(),
       start,
       finish,
-      tech: options.listOfTech[0]!.key,
+      entity: options.listOfTech[0]!.key,
       isPaid: false,
       description: '',
     }
@@ -57,6 +55,20 @@ const TableButtons = () => {
         selectedRows: [...selectedRows, item.id],
       },
     })
+  }
+
+  function addTableRow() {
+    switch (options.typeOfAdding) {
+      case 'fast':
+        addFastTableRow()
+        break
+      case 'full':
+        dispatch({
+          type: Actions.Visible,
+          payload: { key: 'adding', value: true },
+        })
+        break
+    }
   }
 
   function saveWorkTableData() {
@@ -98,27 +110,7 @@ const TableButtons = () => {
   function importTableData() {
     let overwrite = false
 
-    if (initialTable.length > 0) {
-      const actions = [['no', '0', 'n', 'нет'], ['yes', '1', 'y', 'да']]
-      const msg = `Таблица не пуста, выберите действие: перезаписать или объединить (y/n)`
-
-      const result = window.prompt(msg)
-      if (!result) return
-
-      const choice = actions.findIndex((it) => {
-        return it.includes(result.toLowerCase())
-      })
-
-      if (choice === -1) return
-      overwrite = Boolean(choice)
-    }
-
-    const input = document.createElement('input')
-
-    input.setAttribute('type', 'file')
-    input.setAttribute('accept', '.json')
-
-    input.addEventListener('change', (e: any) => {
+    function handler(e: any) {
       const file = e?.target?.files?.[0]
       if (!file) return
 
@@ -133,16 +125,16 @@ const TableButtons = () => {
 
         try {
           const data = JSON.parse(reader.result as string) as IWorkTableRow[]
-          const tech = data.reduce<string[]>((list, it) => {
-            if (!list.includes(it.tech)) list.push(it.tech)
+          const entity = data.reduce<string[]>((list, it) => {
+            if (!list.includes(it.entity)) list.push(it.entity)
             return list
           }, [])
 
           const prevTech = options.listOfTech.map(({ key }) => key)
-          const extra = [...tech, ...prevTech]
+          const extra = [...entity, ...prevTech]
 
           if (extra.length !== prevTech.length) {
-            const list = tech.filter(key => !prevTech.includes(key)).map((it, i) => ({
+            const list = entity.filter(key => !prevTech.includes(key)).map((it, i) => ({
               key: it, text: `Текст - ${i + 1}`, rate: 100,
             }))
 
@@ -178,9 +170,35 @@ const TableButtons = () => {
         console.error(reader.error)
         alert('Не удалось прочитать файл!')
       }
-    })
+    }
 
+    function refine() {
+      const actions = [['no', '0', 'n', 'нет'], ['yes', '1', 'y', 'да']]
+      const msg = `Таблица не пуста, выберите действие: перезаписать или объединить (y/n)`
+
+      const result = window.prompt(msg)
+      if (!result) return
+
+      const choice = actions.findIndex((it) => {
+        return it.includes(result.toLowerCase())
+      })
+
+      if (choice === -1) return false
+      overwrite = Boolean(choice)
+
+      return true
+    }
+
+    if (initialTable.length > 0 && !refine())
+      return
+
+    const input = document.createElement('input')
+
+    input.setAttribute('type', 'file')
+    input.setAttribute('accept', '.json')
+    input.addEventListener('change', handler)
     input.click()
+    input.removeEventListener('change', handler)
   }
 
   return (

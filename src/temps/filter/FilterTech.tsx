@@ -7,14 +7,14 @@ const FilterTech = () => {
   function dispatchLang({ target }: ChangeEvent<HTMLSelectElement>) {
     dispatch({
       type: Actions.Filter,
-      payload: { key: 'tech', value: target.value },
+      payload: { key: 'entity', value: target.value },
     })
   }
 
   return (
     <select
       className="form-select"
-      value={filter.tech}
+      value={filter.entity}
       onChange={dispatchLang}
     >
       <option value="none">По сущности</option>

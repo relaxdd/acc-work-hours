@@ -1,4 +1,4 @@
-import { IWorkTableRow, ListOfRate } from '@/types'
+import { IWorkTableRow } from '@/types'
 import Random from './class/Random'
 
 export function getDiffOfHours(start: string, finish: string): number {
@@ -74,12 +74,6 @@ export const getHoursOrZero = (qty: number) => isNaN(qty) ? 0 : ceilHours(qty)
 //     }, {} as ListOfRate)
 //   }
 // }
-
-export function swapArrayItems<T = any>(arr: T[], from: number, to: number) {
-  const temp = arr[from]
-  arr[from] = arr[to]!
-  arr[to] = temp!
-}
 
 export function roundDateTime(datetime: string, step: number) {
   type Result = { minutes: string, isIncrease: boolean }

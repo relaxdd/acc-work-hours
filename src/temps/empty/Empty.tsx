@@ -4,13 +4,13 @@ import caret from '@svg/caret-down-big.svg'
 import scss from './Empty.module.scss'
 
 function Empty(): ReactElement {
-  const [, dispatch, payload] = useTableContext()
+  const [, dispatch] = useTableContext()
   const [isVisible, setVisible] = useState(false)
 
   function openLeft() {
     dispatch({
-      type: Actions.Rewrite,
-      payload: payload('leftVisible', true),
+      type: Actions.Visible,
+      payload: { key: 'left', value: true },
     })
   }
 

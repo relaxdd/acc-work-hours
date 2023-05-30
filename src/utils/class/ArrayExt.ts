@@ -13,6 +13,12 @@ class ArrayExt {
 
     return arr
   }
+
+  public static swap<T>(arr: T[], from: number, to: number) {
+    const temp = arr[from]
+    arr[from] = arr[to]!
+    arr[to] = temp!
+  }
 }
 
 export default ArrayExt

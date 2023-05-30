@@ -1,13 +1,21 @@
 import Table from './table/Table'
 import Wrapper from './Wrapper'
 import { ITableOptions, IWorkTable, IWorkTableRow } from 'types'
-import { Actions, defTableContext, ITableStore, TableContext, tableReducer, wrapPayload } from 'context/TableContext'
+import {
+  Actions,
+  defOptions,
+  defTableStore,
+  ITableStore,
+  TableContext,
+  tableReducer,
+  wrapPayload,
+} from 'context/TableContext'
 import { useEffect, useReducer, useState } from 'react'
 import TableButtons from './table/TableButtons'
 import Filter from './filter/Filter'
 import { getAllIds, getTypedKeys } from '@/utils'
 import Left from './left/Left'
-import DescriptionModal from './DescriptionModal'
+import DescrModal from './modals/DescrModal'
 import TableService from '@/service/TableService'
 import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
 import Empty from './empty/Empty'
@@ -15,6 +23,9 @@ import SettingModal from './setting/SettingModal'
 import CompareData from '@/utils/class/CompareData'
 import { appVersion } from '@/defines'
 import { getAppSettings } from '@/utils/login'
+import HelpModal from '@/temps/modals/HelpModal'
+import AddingModal from '@/temps/modals/AddingModal'
+import { getLocalVersion, LS_VERSION_KEY } from '@/data'
 
 type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
 
@@ -36,7 +47,7 @@ function getBoundPartsOfStore(table: IWorkTableRow[]): BoundPartsOfStore {
   }
 }
 
-function getActiveOptions(id: string | null, def = defTableContext.options) {
+function getActiveOptions(id: string | null, def = defOptions) {
   if (appVersion.code < 213023) {
     console.warn('Need reformat legacy options!')
     return def
@@ -59,17 +70,33 @@ function getActiveOptions(id: string | null, def = defTableContext.options) {
   return options
 }
 
+// TODO: Менять версию только после всех реформатов
+function reformatLegacy214040(table: IWorkTableRow[], id: string) {
+  if (getLocalVersion() >= 214040) return
+
+  for (let i = 0; i < table.length; i++) {
+    table[i]!.entity = table[i]?.['tech'] || table[i]!.entity
+    delete table[i]?.['tech']
+    table[i]!.tableId = id
+  }
+
+  TableService.updateActiveTableData(id, table)
+  localStorage.setItem(LS_VERSION_KEY, String(appVersion.code))
+}
+
 function getInitStore(): ITableStore {
   const list = TableService.listOfTablesInfo
 
   const active = getActiveTableInfo(list)
-  if (!active) return defTableContext
+  if (!active) return defTableStore
 
   const table = TableService.getActiveTableData(active.id)
   const options = getActiveOptions(active.id)
 
+  reformatLegacy214040(table, active.id)
+
   return {
-    ...defTableContext,
+    ...defTableStore,
     activeTable: active && active.id,
     listOfTables: TableService.listOfTablesInfo,
     options, settings: getAppSettings(),
@@ -129,7 +156,12 @@ function App() {
             <Filter/>
             <Table/>
             <TableButtons/>
-            <DescriptionModal/>
+            <DescrModal/>
+            <HelpModal/>
+
+            {store.options.typeOfAdding === 'full' && (
+              <AddingModal/>
+            )}
           </>)}
 
         <Left/>

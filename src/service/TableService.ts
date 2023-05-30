@@ -12,8 +12,8 @@ import { getLsOptionsKey, getLsTableKey, LS_ACTIVE_KEY, LS_TABLES_KEY } from '@/
 //   }
 // }
 
-type BaseScalarTypes = 'int' | 'float' | 'string' | 'bool' | 'null'
-type ListOfSchemeTypes<T extends Object> = { key: keyof T, type: BaseScalarTypes }[]
+// type BaseScalarTypes = 'int' | 'float' | 'string' | 'bool' | 'null'
+// type ListOfSchemeTypes<T extends Object> = { key: keyof T, type: BaseScalarTypes }[]
 
 class TableService {
   public static set listOfTablesInfo(list: IWorkTable[]) {
