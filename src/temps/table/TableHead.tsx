@@ -14,7 +14,9 @@ const TableHead = () => {
         <col width="12.5%"/>
         <col width="12.5%"/>
         <col width="10%"/>
-        <col width="10%"/>
+        {!hiddenCols.entity && (
+          <col width="10%"/>
+        )}
         <col width="6%"/>
         <col width="6%"/>
         {!hiddenCols.description && (
@@ -30,7 +32,9 @@ const TableHead = () => {
         <th>Начал</th>
         <th>Закончил</th>
         <th>Часов</th>
-        <th>Сущность</th>
+        {!hiddenCols.entity && (
+          <th>Сущность</th>
+        )}
         <th>Опл.</th>
         <th>Вбр.</th>
         {!hiddenCols.description && (

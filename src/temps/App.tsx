@@ -1,5 +1,5 @@
 import Table from './table/Table'
-import Wrapper from './Wrapper'
+import Container from './Container'
 import { ITableOptions, IWorkTable, IWorkTableRow } from 'types'
 import {
   Actions,
@@ -25,7 +25,6 @@ import { appVersion } from '@/defines'
 import { getAppSettings } from '@/utils/login'
 import HelpModal from '@/temps/modals/HelpModal'
 import AddingModal from '@/temps/modals/AddingModal'
-import { getLocalVersion, LS_VERSION_KEY } from '@/data'
 
 type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
 
@@ -70,20 +69,6 @@ function getActiveOptions(id: string | null, def = defOptions) {
   return options
 }
 
-// TODO: Менять версию только после всех реформатов
-function reformatLegacy214040(table: IWorkTableRow[], id: string) {
-  if (getLocalVersion() >= 214040) return
-
-  for (let i = 0; i < table.length; i++) {
-    table[i]!.entity = table[i]?.['tech'] || table[i]!.entity
-    delete table[i]?.['tech']
-    table[i]!.tableId = id
-  }
-
-  TableService.updateActiveTableData(id, table)
-  localStorage.setItem(LS_VERSION_KEY, String(appVersion.code))
-}
-
 function getInitStore(): ITableStore {
   const list = TableService.listOfTablesInfo
 
@@ -92,8 +77,6 @@ function getInitStore(): ITableStore {
 
   const table = TableService.getActiveTableData(active.id)
   const options = getActiveOptions(active.id)
-
-  reformatLegacy214040(table, active.id)
 
   return {
     ...defTableStore,
@@ -148,7 +131,7 @@ function App() {
   }, [store.activeTable])
 
   return width >= 768 ? (
-    <Wrapper>
+    <Container>
       <TableContext.Provider value={[store, dispatch, wrapPayload]}>
         {store.activeTable === null
           ? <Empty/>
@@ -158,6 +141,7 @@ function App() {
             <TableButtons/>
             <DescrModal/>
             <HelpModal/>
+            <SettingModal/>
 
             {store.options.typeOfAdding === 'full' && (
               <AddingModal/>
@@ -165,9 +149,8 @@ function App() {
           </>)}
 
         <Left/>
-        <SettingModal/>
       </TableContext.Provider>
-    </Wrapper>
+    </Container>
   ) : (
     <div className="container">
       <div style={{ height: '100vh', width: '100%', display: 'flex', alignItems: 'center' }}>

@@ -114,7 +114,9 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
       {!options.hiddenCols.number && (
         <td>{index + 1}</td>
       )}
+
       <td>{diffDate}</td>
+
       <td
         onDoubleClick={() => changeWritingMode('start', true)}
       >
@@ -132,6 +134,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
           )
           : getTimeByDT(data.start)}
       </td>
+
       <td
         onDoubleClick={() => changeWritingMode('finish', true)}
       >
@@ -149,33 +152,38 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
           )
           : getTimeByDT(data.finish)}
       </td>
+
       <td>{qtyHours} ч.</td>
-      <td
-        onDoubleClick={() => changeWritingMode('entity', true)}
-      >
-        {writingMode.entity
-          ? (
-            <select
-              className="form-select"
-              value={data.entity}
-              onChange={({ target }) => {
-                dispatch({
-                  type: Actions.WH_Item,
-                  payload: {
-                    key: 'entity', id: data.id, value: target.value,
-                  },
-                })
-              }}
-              onBlur={() => changeWritingMode('entity', false)}
-              ref={langRef}
-            >
-              {options.listOfTech.map((it, i) => (
-                <option value={it.key} key={i}>{it.text}</option>
-              ))}
-            </select>
-          )
-          : data.entity}
-      </td>
+
+      {!options.hiddenCols.entity && (
+        <td
+          onDoubleClick={() => changeWritingMode('entity', true)}
+        >
+          {writingMode.entity
+            ? (
+              <select
+                className="form-select"
+                value={data.entity}
+                onChange={({ target }) => {
+                  dispatch({
+                    type: Actions.WH_Item,
+                    payload: {
+                      key: 'entity', id: data.id, value: target.value,
+                    },
+                  })
+                }}
+                onBlur={() => changeWritingMode('entity', false)}
+                ref={langRef}
+              >
+                {options.listOfTech.map((it, i) => (
+                  <option value={it.key} key={i}>{it.text}</option>
+                ))}
+              </select>
+            )
+            : data.entity}
+        </td>
+      )}
+
       <td
         onDoubleClick={() => changeWritingMode('paid', true)}
       >
@@ -202,6 +210,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
             : (<span className="text-danger">✗</span>))
         }
       </td>
+
       <td>
         <input
           type="checkbox"
@@ -210,6 +219,7 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
           onChange={toggleCheckHours}
         />
       </td>
+
       {!options.hiddenCols.description && (
         <td
           style={{ padding: '5px 7px' }}

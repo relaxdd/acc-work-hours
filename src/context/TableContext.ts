@@ -4,7 +4,7 @@ import { defAppSetting } from '@/utils/login'
 
 type DispatchRewrite<T extends Object, K extends keyof T = keyof T> = { key: K, value: T[K] }
 type RewriteDispatch2 = <T extends ITableStore, K extends keyof T>(key: K, value: T[K]) => DispatchRewrite<T>
-type ListOfVisibility = 'left' | 'setting' | 'help' | 'adding'
+type ListOfVisibility = 'left' | 'setting' | 'help' | 'adding' | 'update'
 
 // export type DispatchTableData<T extends Object> = (key: keyof T, value: T[keyof T], index: number) => void
 export type ChangeDateTime = (type: DTEnum, value: string, id: string) => void
@@ -84,7 +84,8 @@ export const defVisibility: Record<ListOfVisibility, boolean> = {
   left: false,
   setting: false,
   help: false,
-  adding: false
+  adding: false,
+  update: true
 }
 
 export const defOptions: ITableOptions = {
@@ -92,6 +93,7 @@ export const defOptions: ITableOptions = {
   typeOfAdding: 'fast',
   hiddenCols: {
     number: false,
+    entity: false,
     description: false,
   },
   usingKeys: {

@@ -4,7 +4,7 @@ import { Actions, useTableContext } from '@/context/TableContext'
 import BaseRepeater from '@/temps/repeater/BaseRepeater'
 import TableService from '@/service/TableService'
 import { getTypedKeys } from '@/utils'
-import { ITableOptions } from '@/types'
+import { ITableOptions, ListOfHiddenCol } from '@/types'
 import CompareData from '@/utils/class/CompareData'
 import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
 import scss from './SettingModal.module.scss'
@@ -12,6 +12,13 @@ import BindingKey from '@/temps/setting/BindingKey'
 import EntityRepeater from '@/temps/setting/EntityRepeater'
 import { appVersion } from '@/defines'
 import SettingFields from '@/temps/setting/SettingFields'
+import HiddenCols from '@/temps/setting/HiddenCols'
+
+export const labelsCols: Record<ListOfHiddenCol, string> = {
+  number: 'Нумерация',
+  entity: 'Сущность',
+  description: 'Описание',
+}
 
 const SettingModal = () => {
   const [{ visibility, options, activeTable }, dispatch, payload] = useTableContext()
@@ -97,6 +104,16 @@ const SettingModal = () => {
     })
   }
 
+  function onToggleHiddenCol(key: ListOfHiddenCol, value: boolean) {
+    setModified(prev => {
+      return {
+        ...prev, hiddenCols: {
+          ...prev.hiddenCols, [key]: value,
+        },
+      }
+    })
+  }
+
   return (
     <Modal
       show={visibility.setting}
@@ -171,45 +188,16 @@ const SettingModal = () => {
           <p style={{ marginBottom: '8px' }}>Скрытые столбцы</p>
 
           <div>
-            <div className="form-check form-check-inline">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={modified.hiddenCols.number}
-                onChange={() => {
-                  setModified(prev => {
-                    return {
-                      ...prev, hiddenCols: {
-                        ...prev.hiddenCols,
-                        number: !prev.hiddenCols.number,
-                      },
-                    }
-                  })
+            {getTypedKeys(labelsCols).map((key) => (
+              <HiddenCols
+                label={labelsCols[key]}
+                isDisabled={modified.hiddenCols[key]}
+                onChange={(value) => {
+                  onToggleHiddenCol(key, value)
                 }}
+                key={key}
               />
-
-              <label>Нумерация</label>
-            </div>
-
-            <div className="form-check form-check-inline">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={modified.hiddenCols.description}
-                onChange={() => {
-                  setModified(prev => {
-                    return {
-                      ...prev, hiddenCols: {
-                        ...prev.hiddenCols,
-                        description: !prev.hiddenCols.description,
-                      },
-                    }
-                  })
-                }}
-              />
-
-              <label>Описание</label>
-            </div>
+            ))}
           </div>
 
         </div>

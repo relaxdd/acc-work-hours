@@ -72,7 +72,7 @@ const TableFoot = () => {
     <tr>
       <td colSpan={options.hiddenCols.number ? 3 : 4}>Всего рабочих часов</td>
       <td colSpan={1}>{round(totalHours)} ч.</td>
-      <td colSpan={2}>Выбрать всё</td>
+      <td colSpan={options.hiddenCols.entity ? 1 : 2}>Выбрать всё</td>
       <td>
         <input
           type="checkbox"

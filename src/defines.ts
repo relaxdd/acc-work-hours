@@ -3,6 +3,6 @@
 // prev = 214023
 
 export const appVersion = {
-  name: '2.1.4',
-  code: 214040,
+  name: '2.1.5-beta-1',
+  code: 215021,
 }
