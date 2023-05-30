@@ -5,6 +5,8 @@ import { getLocalVersion, LS_VERSION_KEY } from '@/data'
 import TableService from '@/service/TableService'
 import { appVersion } from '@/defines'
 
+type ListOfUpdates = { when: boolean, fn: (when: boolean) => void }[]
+
 function reformatLegacy215021(when: boolean) {
   if (!when) return
 
@@ -23,9 +25,7 @@ function reformatLegacy215021(when: boolean) {
   }
 }
 
-type TestUpdate = { when: boolean, fn: (when: boolean) => void }[]
-
-const listOfUpdates = [
+const listOfUpdates: ListOfUpdates = [
   {
     when: getLocalVersion() < 215021,
     fn: reformatLegacy215021,

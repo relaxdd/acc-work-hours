@@ -88,7 +88,11 @@ const TableFoot = () => {
     <tr>
       <td colSpan={options.hiddenCols.number ? 3 : 4}>Итоговая сумма оплаты</td>
       <td>{roundNumber(totalPayment).toFixed(2)} ₽</td>
-      <td colSpan={options.hiddenCols.description ? 3 : 4}>{textAmountsByLang}</td>
+      <td
+        colSpan={4 - Number(options.hiddenCols.description) - Number(options.hiddenCols.entity)}
+      >
+        {textAmountsByLang}
+      </td>
     </tr>
     </tfoot>
   )
