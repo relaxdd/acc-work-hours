@@ -110,11 +110,20 @@ class ImportService {
 
       if (!check) continue
       else {
-        it['tableId'] = this.active
-        list.push(it)
+        const item: IWorkTableRow = {
+          id: it.id,
+          tableId: this.active,
+          start: it.start,
+          finish: it.finish,
+          entity: it.entity,
+          isPaid: it.isPaid,
+          description: it.description,
+        }
+
+        list.push(item)
       }
     }
-    
+
     return list
   }
 }
