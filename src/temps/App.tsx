@@ -11,9 +11,9 @@ import {
   wrapPayload,
 } from 'context/TableContext'
 import { useEffect, useReducer, useState } from 'react'
-import TableButtons from './table/TableButtons'
+import Bottom from './Bottom'
 import Filter from './filter/Filter'
-import { getAllIds, getTypedKeys } from '@/utils'
+import { getAllIds, getTypedKeys, localStorageKeys } from '@/utils'
 import Left from './left/Left'
 import DescrModal from './modals/DescrModal'
 import TableService from '@/service/TableService'
@@ -21,10 +21,10 @@ import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
 import Empty from './empty/Empty'
 import SettingModal from './setting/SettingModal'
 import CompareData from '@/utils/class/CompareData'
-import { appVersion } from '@/defines'
 import { getAppSettings } from '@/utils/login'
 import HelpModal from '@/temps/modals/HelpModal'
 import AddingModal from '@/temps/modals/AddingModal'
+import { getLsOptionsKey } from '@/data'
 
 type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
 
@@ -46,27 +46,40 @@ function getBoundPartsOfStore(table: IWorkTableRow[]): BoundPartsOfStore {
   }
 }
 
-function getActiveOptions(id: string | null, def = defOptions) {
-  if (appVersion.code < 213023) {
-    console.warn('Need reformat legacy options!')
-    return def
-  }
+function qtyObjKeys(obj: Object): number {
+  return Object.keys(obj).length
+}
 
-  let check = false
+function validateOptions(opt: ITableOptions, def: ITableOptions) {
+  const verify = ['hiddenCols', 'usingKeys']
+
+  return getTypedKeys(def).reduce<Record<string, any>>((list, key) => {
+    if (!(key in opt))
+      list[key] = def[key]
+    else if (verify.includes(key))
+      list[key] = qtyObjKeys(opt[key]) === qtyObjKeys(def[key])
+        ? opt[key] : def[key]
+    else if (key === 'listOfTech')
+      list[key] = opt[key].length ? opt[key] : def[key]
+    else
+      list[key] = opt[key]
+
+    return list
+  }, {}) as ITableOptions
+}
+
+function getActiveOptions(id: string | null, def = defOptions) {
+  let validate = false
 
   const options = id ? (() => {
-    check = true
+    validate = true
     return TableService.getActiveOptions(id)
   })() ?? def : def
 
-  if (check) {
-    return getTypedKeys(def).reduce<Record<string, any>>((list, key) => {
-      list[key] = key in options ? options[key] : def[key]
-      return list
-    }, {}) as ITableOptions
-  }
-
-  return options
+  if (validate)
+    return validateOptions(options, def)
+  else
+    return options
 }
 
 function getInitStore(): ITableStore {
@@ -131,14 +144,14 @@ function App() {
   }, [store.activeTable])
 
   return width >= 768 ? (
-    <Container>
-      <TableContext.Provider value={[store, dispatch, wrapPayload]}>
+    <TableContext.Provider value={[store, dispatch, wrapPayload]}>
+      <Container>
         {store.activeTable === null
           ? <Empty/>
           : (<>
             <Filter/>
             <Table/>
-            <TableButtons/>
+            <Bottom/>
             <DescrModal/>
             <HelpModal/>
             <SettingModal/>
@@ -149,8 +162,8 @@ function App() {
           </>)}
 
         <Left/>
-      </TableContext.Provider>
-    </Container>
+      </Container>
+    </TableContext.Provider>
   ) : (
     <div className="container">
       <div style={{ height: '100vh', width: '100%', display: 'flex', alignItems: 'center' }}>

@@ -1,9 +1,9 @@
 import React, { FC } from 'react'
-import { ITableOptionsTech } from '@/types'
+import { ITableOptionsEntity } from '@/types'
 import { RepeaterDispatch } from '@/temps/repeater/BaseRepeater'
 
 interface EntityRepeaterProps {
-  state: [ITableOptionsTech, RepeaterDispatch<ITableOptionsTech>],
+  state: [ITableOptionsEntity, RepeaterDispatch<ITableOptionsEntity>],
   i: number
 }
 

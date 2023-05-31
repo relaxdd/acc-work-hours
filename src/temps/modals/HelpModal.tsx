@@ -7,6 +7,7 @@ const list = [
   'Что бы отредактировать данные добавленной строки в таблице кликните два раза по ячейке',
   `Редактируемые ячейки: 'Начал', 'Закончил', 'Сущность', 'Отплачено', 'Описание'`,
   `Для того что бы манипулировать со строкой (переместить или удалить) используйте клавиши забитые в настройках, по умолчанию это 'Delete', 'ArrowUp' и 'ArrowDown'`,
+  `Формат данных json для импорта <code>{id: string, start: string, finish: string, entity: string, isPaid: boolean, description: string}[]</code>`
 ]
 
 const HelpModal = () => {
@@ -33,7 +34,7 @@ const HelpModal = () => {
       <Modal.Body>
         <ul className={scss.list}>
           {list.map((it, i) => (
-            <li className={scss.item} key={i}>{it}</li>
+            <li className={scss.item} key={i} dangerouslySetInnerHTML={{ __html: it }}/>
           ))}
         </ul>
       </Modal.Body>

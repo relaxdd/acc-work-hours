@@ -1,12 +1,13 @@
 import React from 'react'
-import CompareData from 'utils/class/CompareData'
-import { ITableOptions, IWorkTableRow } from 'types'
-import { getAllIds, getDateTimeWithOffset, getFormattedDateTime, roundDateTime } from 'utils'
-import Random from 'utils/class/Random'
-import { Actions, useTableContext } from 'context/TableContext'
+import CompareData from '@/utils/class/CompareData'
+import { IWorkTableRow } from '@/types'
+import { getAllIds, getDateTimeWithOffset, getFormattedDateTime, roundDateTime } from '@/utils'
+import Random from '@/utils/class/Random'
+import { Actions, useTableContext } from '@/context/TableContext'
 import TableService from '@/service/TableService'
+import ImportService from '@/service/ImportService'
 
-const TableButtons = () => {
+const Bottom = () => {
   const [{
     initialTable,
     modifiedTable,
@@ -90,14 +91,7 @@ const TableButtons = () => {
   }
 
   function showExportData() {
-    const list = TableService.getActiveTableData(activeTable!)
-
-    if (!list.length) {
-      alert('База рабочих часов пуста!')
-      return
-    }
-
-    window.navigator.clipboard.writeText(JSON.stringify(list))
+    window.navigator.clipboard.writeText(JSON.stringify(modifiedTable))
       .then(() => {
         alert('База рабочих часов успешно скопирована в буфер обмена')
       })
@@ -107,70 +101,9 @@ const TableButtons = () => {
       })
   }
 
+  // TODO: Вынести в модалку импорта
   function importTableData() {
     let overwrite = false
-
-    function handler(e: any) {
-      const file = e?.target?.files?.[0]
-      if (!file) return
-
-      const reader = new FileReader()
-      reader.readAsText(file)
-
-      // TODO: Добавить валидацию таблицы
-      reader.onload = function () {
-        if (!reader.result) return
-
-        console.log(overwrite)
-
-        try {
-          const data = JSON.parse(reader.result as string) as IWorkTableRow[]
-          const entity = data.reduce<string[]>((list, it) => {
-            if (!list.includes(it.entity)) list.push(it.entity)
-            return list
-          }, [])
-
-          const prevTech = options.listOfTech.map(({ key }) => key)
-          const extra = [...entity, ...prevTech]
-
-          if (extra.length !== prevTech.length) {
-            const list = entity.filter(key => !prevTech.includes(key)).map((it, i) => ({
-              key: it, text: `Текст - ${i + 1}`, rate: 100,
-            }))
-
-            const update: ITableOptions = {
-              ...options, listOfTech: overwrite
-                ? list : [...options.listOfTech, ...list],
-            }
-
-            dispatch({
-              type: Actions.Rewrite,
-              payload: payload('options', update),
-            })
-
-            TableService.updateActiveOptions(activeTable!, update)
-          }
-
-          const tables = overwrite ? data : [...modifiedTable, ...data]
-
-          dispatch({
-            type: Actions.State,
-            payload: {
-              modifiedTable: tables,
-              selectedRows: tables.map(({ id }) => id),
-            },
-          })
-        } catch (err) {
-          console.error(err)
-          alert('Не удалось прочитать файл!')
-        }
-      }
-
-      reader.onerror = function () {
-        console.error(reader.error)
-        alert('Не удалось прочитать файл!')
-      }
-    }
 
     function refine() {
       const actions = [['no', '0', 'n', 'нет'], ['yes', '1', 'y', 'да']]
@@ -189,6 +122,35 @@ const TableButtons = () => {
       return true
     }
 
+    function handler(e: any) {
+      if (!e.target) return
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      const service = new ImportService(file, options.listOfTech, activeTable!)
+
+      service.onUpdateEntity((entities) => {
+        TableService.updateActiveOptions(activeTable!, {
+          ...options, listOfTech: overwrite
+            ? entities : [...options.listOfTech, ...entities],
+        })
+      })
+
+      service.onSuccess((table) => {
+        table = overwrite ? table : [...modifiedTable, ...table]
+        TableService.updateActiveTableData(activeTable!, table)
+        const list = TableService.listOfTablesInfo
+
+        for (let it of list) {
+          if (it.id !== activeTable) continue
+          it.count = table.length
+        }
+
+        TableService.listOfTablesInfo = list
+        window.location.reload()
+      })
+    }
+
     if (initialTable.length > 0 && !refine())
       return
 
@@ -197,8 +159,8 @@ const TableButtons = () => {
     input.setAttribute('type', 'file')
     input.setAttribute('accept', '.json')
     input.addEventListener('change', handler)
+
     input.click()
-    input.removeEventListener('change', handler)
   }
 
   return (
@@ -211,6 +173,7 @@ const TableButtons = () => {
         value="Экспорт"
         className="btn btn-outline-dark"
         onClick={showExportData}
+        disabled={!modifiedTable.length}
       />
 
       <input
@@ -246,4 +209,4 @@ const TableButtons = () => {
   )
 }
 
-export default TableButtons
+export default Bottom

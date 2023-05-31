@@ -7,7 +7,7 @@ export type IAppSettings = {
   isDisabled: boolean
 }
 
-export type ITableOptionsTech = { key: string, text: string, rate: number }
+export type ITableOptionsEntity = { key: string, text: string, rate: number }
 
 export type ListOfHiddenCol = 'number' | 'entity' | 'description'
 export type ITableOptionsHidden = Record<ListOfHiddenCol, boolean>
@@ -17,7 +17,7 @@ export type ITableOptionsKeys = Record<ListOfUsingKeys, string>
 
 export type ITableOptions = {
   dtRoundStep: number,
-  listOfTech: ITableOptionsTech[]
+  listOfTech: ITableOptionsEntity[]
   hiddenCols: ITableOptionsHidden
   usingKeys: ITableOptionsKeys,
   typeOfAdding: 'fast' | 'full'

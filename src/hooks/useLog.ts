@@ -1,7 +1,7 @@
-import { useEffect } from "react"
+import { useEffect } from 'react'
 
 function useLog(data: any, deps: any[] = []) {
-  deps = deps.length ? deps : [data]
+  deps = deps.length ? [data, ...deps] : [data]
 
   useEffect(() => {
     console.log(data)

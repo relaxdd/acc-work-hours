@@ -89,12 +89,12 @@ class TableService {
 
   public static deleteWorkTable(id: string): IWorkTable[] | false {
     localStorage.removeItem(getLsTableKey(id))
+    localStorage.removeItem(getLsOptionsKey(id))
 
     const list = this.listOfTablesInfo
     const index = list.findIndex(it => it.id === id)
 
-    if (index === -1)
-      return false
+    if (index === -1) return false
 
     list.splice(index, 1)
     this.listOfTablesInfo = list

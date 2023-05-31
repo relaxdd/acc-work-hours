@@ -1,4 +1,4 @@
-import { IWorkTableRow } from '@/types'
+import { ITableOptionsHidden, IWorkTableRow } from '@/types'
 import Random from './class/Random'
 
 export function getDiffOfHours(start: string, finish: string): number {
@@ -151,6 +151,12 @@ export function calcRatioOfArrayValues(arr: string[]) {
 export function localStorageKeys(fn: (key: string) => void) {
   for (let i = 0; i < localStorage.length; i++)
     fn(localStorage.key(i)!)
+}
+
+export function getQtyCols(obj: ITableOptionsHidden, initial = 9) {
+  return getTypedKeys(obj).reduce((num, key) => {
+    return obj[key] ? num - 1 : num
+  }, initial)
 }
 
 // export function getTableInfoDto({ id, name, created, count }: IWorkTable): PartOfWorkTable {
