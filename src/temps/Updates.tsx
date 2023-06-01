@@ -3,31 +3,11 @@ import App from '@/temps/App'
 import UpdateModal from '@/temps/modals/UpdateModal'
 import { getLocalVersion, LS_VERSION_KEY } from '@/data'
 import TableService from '@/service/TableService'
-import { appVersion } from '@/defines'
 import { localStorageKeys } from '@/utils'
+import { appVersion } from '@/defines'
 
 type ListOfUpdates = { need: boolean, reformat: (need: boolean) => void }[]
 
-function reformatLegacy215021(when: boolean) {
-  if (!when) return
-
-  const list = TableService.listOfTablesInfo
-
-  for (const { id } of list) {
-    const table = TableService.getActiveTableData(id)
-    if (!table.length) return
-
-    for (let i = 0; i < table.length; i++) {
-      table[i]!.entity = table[i]?.['tech'] || table[i]!.entity
-      delete table[i]?.['tech']
-
-      if (table[i]?.tableId !== id)
-        table[i]!.tableId = id
-    }
-
-    TableService.updateActiveTableData(id, table)
-  }
-}
 
 function reformatLegacy215023(when: boolean) {
   if (!when) return
@@ -49,14 +29,37 @@ function reformatLegacy215023(when: boolean) {
   })
 }
 
+function reformatLegacy215024(when: boolean) {
+  if (!when) return
+
+  const list = TableService.listOfTablesInfo
+
+  for (const { id } of list) {
+    const table = TableService.getActiveTableData(id)
+    if (!table.length) continue
+
+    for (let i = 0; i < table.length; i++) {
+      table[i]!['entity'] = table[i]?.['tech'] || table[i]!.entity
+      delete table[i]?.['tech']
+
+      if (table[i]?.tableId !== id)
+        table[i]!.tableId = id
+
+      table[i]!['order'] = i + 1
+    }
+
+    TableService.updateActiveTableData(id, table)
+  }
+}
+
 const listOfUpdates: ListOfUpdates = [
-  {
-    need: getLocalVersion() < 215021,
-    reformat: reformatLegacy215021,
-  },
   {
     need: getLocalVersion() < 215023,
     reformat: reformatLegacy215023,
+  },
+  {
+    need: getLocalVersion() < 215024,
+    reformat: reformatLegacy215024,
   },
 ]
 

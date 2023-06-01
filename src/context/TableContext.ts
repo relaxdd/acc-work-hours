@@ -43,6 +43,8 @@ export type ActionOfTReducer =
   | { type: Actions.State, payload: Partial<ITableStore> }
   | { type: Actions.Visible, payload: { key: ListOfVisibility, value: boolean } }
 
+export type ListOfSorting = 'order-asc' | 'date-asc' | 'date-desc'
+
 
 export type ITableStore = {
   visibility: Record<ListOfVisibility, boolean>,
@@ -65,7 +67,8 @@ export type ITableStore = {
   /** Состояние опций таблицы */
   options: ITableOptions,
   /** Настройки приложения */
-  settings: IAppSettings
+  settings: IAppSettings,
+  sorting: ListOfSorting
 }
 
 type ITableContext = [ITableStore, Dispatch<ActionOfTReducer>, RewriteDispatch2]
@@ -85,7 +88,7 @@ export const defVisibility: Record<ListOfVisibility, boolean> = {
   setting: false,
   help: false,
   adding: false,
-  update: true
+  update: true,
 }
 
 export const defOptions: ITableOptions = {
@@ -118,6 +121,7 @@ export const defTableStore: ITableStore = {
   settings: defAppSetting,
   visibility: defVisibility,
   options: defOptions,
+  sorting: 'order-asc',
 }
 
 export const wrapPayload: RewriteDispatch2 = (key, value) => {
@@ -154,8 +158,8 @@ export function tableReducer(state: ITableStore, action: ActionOfTReducer): ITab
       return {
         ...state, visibility: {
           ...state.visibility,
-          [action.payload.key]: action.payload.value
-        }
+          [action.payload.key]: action.payload.value,
+        },
       }
     }
   }

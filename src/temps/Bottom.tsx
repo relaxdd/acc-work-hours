@@ -45,6 +45,7 @@ const Bottom = () => {
       entity: options.listOfTech[0]!.key,
       isPaid: false,
       description: '',
+      order: modifiedTable.length + 1,
     }
 
     const table = [...modifiedTable, item]
@@ -127,7 +128,7 @@ const Bottom = () => {
       const file = e.target.files?.[0]
       if (!file) return
 
-      const service = new ImportService(file, options.listOfTech, activeTable!)
+      const service = new ImportService(file, options.listOfTech, activeTable!, modifiedTable.length)
 
       service.onUpdateEntity((entities) => {
         TableService.updateActiveOptions(activeTable!, {

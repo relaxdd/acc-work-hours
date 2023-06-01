@@ -1,7 +1,7 @@
 {
   "name": "working-hours",
   "homepage": "/working-hours/",
-  "version": "2.1.5-beta-3",
+  "version": "2.1.5-beta-4",
   "private": true,
   "dependencies": {
     "bootstrap": "^5.2.3",

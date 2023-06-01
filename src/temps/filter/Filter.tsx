@@ -2,7 +2,8 @@ import FilterTech from './FilterTech'
 import { Actions, defTableFilter, useTableContext } from '@/context/TableContext'
 import FilterDate from './FilterDate'
 import scss from './Filter.module.scss'
-import { createContext, useContext, useEffect } from 'react'
+import { createContext, useContext } from 'react'
+import SortDate from '@/temps/filter/SortDate'
 
 const defFilterContext = {
   isVisible: false,
@@ -61,6 +62,10 @@ const FilterOverview = () => {
 
       <div className={scss.overview}>
         <div>
+          <SortDate/>
+        </div>
+
+        <div>
           <FilterDate/>
         </div>
 
@@ -99,14 +104,17 @@ const FilterOverview = () => {
 // }
 
 const Filter = () => {
-  const [, dispatch, payload] = useTableContext()
+  const [, dispatch] = useTableContext()
 
   // const [isVisible, setVisible] = useState(false)
 
   function resetFilter() {
     dispatch({
-      type: Actions.Rewrite,
-      payload: payload('filter', defTableFilter),
+      type: Actions.State,
+      payload: {
+        filter: defTableFilter,
+        sorting: 'order-asc',
+      },
     })
   }
 

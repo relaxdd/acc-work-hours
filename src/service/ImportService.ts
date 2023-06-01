@@ -13,6 +13,7 @@ class ImportService {
     file: File | Blob,
     private entities: ITableOptionsEntity[],
     private active: string,
+    private length: number,
   ) {
     this.reader = new FileReader()
     this.reader.readAsText(file)
@@ -98,6 +99,7 @@ class ImportService {
     ]
 
     const list = []
+    let order = this.length
 
     for (const it of data) {
       if (!(typeof it === 'object' && !Array.isArray(it)))
@@ -118,9 +120,11 @@ class ImportService {
           entity: it.entity,
           isPaid: it.isPaid,
           description: it.description,
+          order: order + 1,
         }
 
         list.push(item)
+        order++
       }
     }
 

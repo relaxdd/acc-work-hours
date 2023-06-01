@@ -2,12 +2,13 @@ import scss from './Table.module.scss'
 import { FC, useEffect } from 'react'
 import TableRow from './TableRow'
 import TableHead from './TableHead'
-import { Actions, ChangeDateTime, useTableContext } from '@/context/TableContext'
+import { Actions, ChangeDateTime, ListOfSorting, useTableContext } from '@/context/TableContext'
 import TableFoot from './TableFoot'
 import { IWorkTableRow } from '@/types'
 import ArrayExt from '@/utils/class/ArrayExt'
+import arrayExt from '@/utils/class/ArrayExt'
 
-class Sorting {
+class Filtering {
   public static byEntity(entity: string | 'none', list: IWorkTableRow[]) {
     return entity !== 'none'
       ? list.filter((it) => it.entity === entity) : list
@@ -19,10 +20,25 @@ class Sorting {
   }
 }
 
+class Sorting {
+  public static sort(method: ListOfSorting, list: IWorkTableRow[]) {
+    return list.sort((a, b) => {
+      switch (method) {
+        case 'order-asc':
+          return a.order - b.order
+        case 'date-asc':
+          return new Date(a.start).getTime() - new Date(b.start).getTime()
+        case 'date-desc':
+          return new Date(b.start).getTime() - new Date(a.start).getTime()
+      }
+    })
+  }
+}
+
 export type TableRowActions = 'delete' | 'moveUp' | 'moveDown'
 
 const Table: FC = () => {
-  const [{ modifiedTable, filter, filteredTable }, dispatch, payload] = useTableContext()
+  const [{ modifiedTable, filter, filteredTable, sorting }, dispatch, payload] = useTableContext()
 
   const changeDateTime: ChangeDateTime = (key, value, id) => {
     dispatch({ type: Actions.WH_Item, payload: { key, value, id } })
@@ -39,10 +55,11 @@ const Table: FC = () => {
 
   function moveTableRow(isUp: boolean, id: string) {
     const index = modifiedTable.findIndex(it => it.id === id)
-    if (index === -1) return
 
-    // (index === 0 && isUp)
-    // (index === modifiedTable.length - 1 && !isUp)
+    if (index === -1 ||
+      (index === 0 && isUp) ||
+      (index === modifiedTable.length - 1 && !isUp)
+    ) return
 
     const list = [...modifiedTable]
 
@@ -57,8 +74,7 @@ const Table: FC = () => {
         return i
     })()
 
-    // swapArrayItems(list, index, where)
-    ArrayExt.move(list, index, where)
+    arrayExt.swapByKey(list, index, where, 'order')
 
     dispatch({
       type: Actions.Rewrite,
@@ -88,11 +104,12 @@ const Table: FC = () => {
   }
 
   useEffect(() => {
-    const byDate = Sorting.byDate(filter.date, modifiedTable)
-    const byLang = Sorting.byEntity(filter.entity, byDate)
+    const byDate = Filtering.byDate(filter.date, modifiedTable)
+    const byLang = Filtering.byEntity(filter.entity, byDate)
+    const bySort = Sorting.sort(sorting, byLang)
 
-    dispatchFilteredTable(byLang)
-  }, [modifiedTable, filter])
+    dispatchFilteredTable(bySort)
+  }, [modifiedTable, filter, sorting])
 
   return (
     <table className={scss.table}>

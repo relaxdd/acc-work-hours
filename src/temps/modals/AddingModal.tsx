@@ -5,7 +5,8 @@ import { getDateTimeWithOffset, getFormattedDateTime, roundDateTime } from '@/ut
 import { IWorkTableRow } from '@/types'
 import Random from '@/utils/class/Random'
 
-type ITask = Omit<IWorkTableRow, 'id' | 'tableId' | 'tech'>
+type ExcludeFromTable = 'id' | 'tableId' | 'tech' | 'order'
+type ITask = Omit<IWorkTableRow, ExcludeFromTable>
 
 const defTask: ITask = {
   start: '',
@@ -74,6 +75,7 @@ const AddingModal = () => {
       id: Random.uuid(),
       tableId: activeTable!,
       ...state,
+      order: modifiedTable.length + 1,
     }
 
     const table = [...modifiedTable, item]

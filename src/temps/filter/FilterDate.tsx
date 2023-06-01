@@ -27,12 +27,9 @@ const FilterDate = () => {
 
     const dates = modifiedTable.map(it => it.start.split("T")[0]!)
 
-    return [...(new Set(dates))].map((it) => {
-      return {
-        base: it,
-        pretty: convertToPretty(it),
-      }
-    })
+    return [...(new Set(dates))].map((it) => ({
+      base: it, pretty: convertToPretty(it),
+    }))
   }, [modifiedTable])
 
   return (
@@ -41,7 +38,7 @@ const FilterDate = () => {
       value={filter.date}
       onChange={({ target }) => dispatchFilter(target.value)}
     >
-      <option value="none">По дате</option>
+      <option value="none">Дата</option>
       {list.map(({ base, pretty }, i) => (
         <option value={base} key={i}>{pretty}</option>
       ))}

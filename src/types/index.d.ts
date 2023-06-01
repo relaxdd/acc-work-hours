@@ -39,7 +39,8 @@ export type IWorkTableRow = {
   finish: string,
   entity: string,
   isPaid: boolean,
-  description: string
+  description: string,
+  order: number
 } & { tech?: string }
 
 export type BaseDispatch<V extends Object> = <T extends V, K extends keyof T>(key: K, value: T[K]) => void
