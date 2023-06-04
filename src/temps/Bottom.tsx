@@ -38,11 +38,11 @@ const Bottom = () => {
     }
 
     const item: IWorkTableRow = {
-      id: Random.uuid(),
-      tableId: Random.uuid(),
+      id: Random.uuid(13),
+      tableId: activeTable!,
+      entityId: options.listOfTech[0]!.id,
       start,
       finish,
-      entity: options.listOfTech[0]!.key,
       isPaid: false,
       description: '',
       order: modifiedTable.length + 1,

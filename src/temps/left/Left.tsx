@@ -91,7 +91,6 @@ const Left = () => {
     TableService.listOfTablesInfo = list
   }
 
-
   return (
     <>
       {activeTable && <LeftFloating/>}
@@ -145,27 +144,29 @@ const Left = () => {
                 </div>
               )}
             </div>
-
-            <div className={scss.bottom}>
-              <input
-                type="button"
-                className="btn btn-primary"
-                value="Добавить таблицу"
-                disabled={isCreateMode}
-                onClick={() => setCreateMode(true)}
-              />
-
-              {listOfTables.length > 0 && (
-                <input
-                  type="button"
-                  className="btn btn-outline-danger"
-                  value="Удалить все таблицы"
-                  onClick={() => TableService.deleteAllTables()}
-                />
-              )}
-            </div>
           </div>
         </Offcanvas.Body>
+
+        <div className="offcanvas-footer">
+          <div className={scss.bottom}>
+            <input
+              type="button"
+              className="btn btn-primary"
+              value="Добавить таблицу"
+              disabled={isCreateMode}
+              onClick={() => setCreateMode(true)}
+            />
+
+            {listOfTables.length > 0 && (
+              <input
+                type="button"
+                className="btn btn-outline-danger"
+                value="Удалить все таблицы"
+                onClick={() => TableService.deleteAllTables()}
+              />
+            )}
+          </div>
+        </div>
       </Offcanvas>
     </>
   )

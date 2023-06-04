@@ -13,17 +13,19 @@ export type RepeaterDispatch<T> = (key: keyof T, value: any, index: number) => v
 interface BaseRepeaterProps<T> {
   data: Array<T>,
   baseKeys: (keyof T)[],
-  onChange: (list: T[]) => void,
-  onRender: (state: [T, RepeaterDispatch<T>], i: number) => JSX.Element | JSX.Element[],
   title?: string,
   onHideItem?: OnHideItemRepeater,
-  onMount?: (() => void),
   textConfirmDeleteItem?: string,
   id?: string,
   baseTypes?: ListOfTypes<T>,
   asForm?: boolean,
-  onSubmit?: ((e: React.FormEvent<HTMLFormElement>) => void),
   submitDisabled?: boolean
+  onMount?: (() => void),
+  onAdding?: (item: T) => void
+  onBeforeDelete?: (index: number) => boolean,
+  onChange: (list: T[], isAdding?: boolean) => void,
+  onRender: (state: [T, RepeaterDispatch<T>], i: number) => JSX.Element | JSX.Element[],
+  onSubmit?: ((e: React.FormEvent<HTMLFormElement>) => void),
 }
 
 function getTypedKeys<T extends Object>(obj: T) {
@@ -46,6 +48,7 @@ function ListRepeater<T extends Object>(
     title,
     data,
     baseKeys,
+    onAdding,
     onChange,
     textConfirmDeleteItem,
     onRender,
@@ -56,6 +59,7 @@ function ListRepeater<T extends Object>(
     asForm,
     onSubmit,
     submitDisabled,
+    onBeforeDelete,
   }: BaseRepeaterProps<T>,
 ): JSX.Element {
   const ls = '__awenn2015_react_repeater'
@@ -175,7 +179,9 @@ function ListRepeater<T extends Object>(
    * Adds a new repeater element to the end
    */
   function push() {
-    onChange([...data, create()])
+    const it = create()
+    if (onAdding) onAdding(it)
+    onChange([...data, it], true)
   }
 
   /**
@@ -186,11 +192,15 @@ function ListRepeater<T extends Object>(
       onChange(data.filter((_, i) => i !== index))
     }
 
-    if (isFieldEmpty(index)) __delete()
-    else {
-      const text = textConfirmDeleteItem || 'Do you really want to delete this item?'
-      const result = window.confirm(text)
-      if (result) __delete()
+    if (onBeforeDelete) {
+      if (onBeforeDelete(index)) __delete()
+    } else {
+      if (isFieldEmpty(index)) __delete()
+      else {
+        const text = textConfirmDeleteItem || 'Вы действительно хотите удалить этот элемент?'
+        const result = window.confirm(text)
+        if (result) __delete()
+      }
     }
   }
 
@@ -198,11 +208,13 @@ function ListRepeater<T extends Object>(
    * Adds a new element at the specified index
    */
   function add(index: number) {
+    const it = create()
+    if (onAdding) onAdding(it)
+
     onChange([
-      ...data.slice(0, index),
-      create(),
+      ...data.slice(0, index), it,
       ...data.slice(index, data.length),
-    ])
+    ], true)
   }
 
   /**
@@ -374,7 +386,7 @@ function ListRepeater<T extends Object>(
  * TODO: Сделать проверку на кол-во элементов и если 1 то не покалывать скрывашку
  *
  * @author awenn2015
- * @version 1.0.3
+ * @version 1.0.4
  */
 function BaseRepeater<T extends Object>(props: BaseRepeaterProps<T>) {
   return props.asForm

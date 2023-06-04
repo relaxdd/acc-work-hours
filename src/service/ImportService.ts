@@ -1,10 +1,19 @@
 import { ITableOptionsEntity, IWorkTableRow } from '@/types'
+import Random from '@/utils/class/Random'
+import TableService from '@/service/TableService'
 
 type EventHandlers = {
   update: null | ((list: ITableOptionsEntity[]) => void),
   success: null | ((table: IWorkTableRow[]) => void)
 }
 
+/**
+ * Пока что реализован импорт без сущностей
+ *
+ * TODO: Поменять формат импорта на {table: [...], entities: [{ key? text? rate? }]}
+ * TODO: Переписать связи с entity в tableRow и по умолчанию кидать невидимую entity 0 (Добавить)
+ * TODO: Дописать проверку в настройках и изменение entity в данных таблицы
+ */
 class ImportService {
   private reader: FileReader
   private handlers: EventHandlers
@@ -46,7 +55,10 @@ class ImportService {
     if (!this.handlers.update) return
 
     const list = entity.filter(key => !prevTech.includes(key)).map((it, i) => ({
-      key: it, text: `Текст - ${i + 1}`, rate: 100,
+      id: Random.uuid(10),
+      key: it,
+      text: `Ставка - ${i + 1}`,
+      rate: 150,
     }))
 
     this.handlers.update(list)
@@ -61,16 +73,16 @@ class ImportService {
       const data = this.validate(any)
       if (!data.length) return
 
-      const entity = data.reduce<string[]>((list, it) => {
-        if (!list.includes(it.entity)) list.push(it.entity)
-        return list
-      }, [])
-
-      const prevTech = this.entities.map(({ key }) => key)
-      const extra = [...entity, ...prevTech]
-
-      if (extra.length !== prevTech.length)
-        this.insertEntities(entity, prevTech)
+      // const entity = data.reduce<string[]>((list, it) => {
+      //   if (!list.includes(it.entity)) list.push(it.entity)
+      //   return list
+      // }, [])
+      //
+      // const prevTech = this.entities.map(({ key }) => key)
+      // const extra = [...entity, ...prevTech]
+      //
+      // if (extra.length !== prevTech.length)
+      //   this.insertEntities(entity, prevTech)
 
       this.handlers.success(data)
     } catch (err) {
@@ -93,13 +105,23 @@ class ImportService {
       { key: 'id', type: 'string', empty: false },
       { key: 'start', type: 'string', empty: false },
       { key: 'finish', type: 'string', empty: false },
-      { key: 'entity', type: 'string', empty: false },
       { key: 'isPaid', type: 'boolean' },
       { key: 'description', type: 'string', empty: true },
     ]
 
     const list = []
     let order = this.length
+
+    const options = TableService.getActiveOptions(this.active)
+
+    if (!options) {
+      alert('Произошла непредвиденная ошибка при импорте!')
+      throw new Error('Нет данных о настройках таблицы!')
+    }
+
+    const entityId = options.listOfTech.length
+      ? options.listOfTech[0]!.id
+      : null
 
     for (const it of data) {
       if (!(typeof it === 'object' && !Array.isArray(it)))
@@ -111,21 +133,20 @@ class ImportService {
       })
 
       if (!check) continue
-      else {
-        const item: IWorkTableRow = {
-          id: it.id,
-          tableId: this.active,
-          start: it.start,
-          finish: it.finish,
-          entity: it.entity,
-          isPaid: it.isPaid,
-          description: it.description,
-          order: order + 1,
-        }
 
-        list.push(item)
-        order++
+      const item: IWorkTableRow = {
+        id: it.id,
+        tableId: this.active,
+        entityId,
+        start: it.start,
+        finish: it.finish,
+        isPaid: it.isPaid,
+        description: it.description,
+        order: order + 1,
       }
+
+      list.push(item)
+      order++
     }
 
     return list

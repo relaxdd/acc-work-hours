@@ -1,6 +1,7 @@
 import { createContext, Dispatch, useContext } from 'react'
 import { DTEnum, IAppSettings, ITableOptions, IWorkTable, IWorkTableRow } from '@/types'
 import { defAppSetting } from '@/utils/login'
+import Random from '@/utils/class/Random'
 
 type DispatchRewrite<T extends Object, K extends keyof T = keyof T> = { key: K, value: T[K] }
 type RewriteDispatch2 = <T extends ITableStore, K extends keyof T>(key: K, value: T[K]) => DispatchRewrite<T>
@@ -29,7 +30,7 @@ export type IModalVisible = {
 
 type DispatchTable =
   ({ key: 'id' | 'start' | 'finish' | 'description', value: string }
-    | { key: 'entity', value: string }
+    | { key: 'entityId', value: string | null }
     | { key: 'isPaid', value: boolean }) & { id: string }
 
 type DispatchFilter =
@@ -105,7 +106,7 @@ export const defOptions: ITableOptions = {
     down: 'ArrowDown',
   },
   listOfTech: [
-    { key: 'base', text: 'Базовый', rate: 200 },
+    { id: Random.uuid(10), key: 'base', text: 'Базовый', rate: 200 },
   ],
 }
 

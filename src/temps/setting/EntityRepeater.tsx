@@ -34,6 +34,8 @@ const EntityRepeater: FC<EntityRepeaterProps> = ({ state: [item, change], i }) =
         onChange={({ target }) => change('rate', target.value, i)}
         placeholder="Ставка"
       />
+
+      <input type="hidden" value={item.id} readOnly />
     </>
   )
 }

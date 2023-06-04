@@ -27,14 +27,20 @@ const TableFoot = () => {
     else dispatchSelect(getAllIds(filteredTable))
   }
 
-  function calcAmountByTech() {
+  function calcAmountByEntity() {
     const filtered = filteredTable.filter(it => selectedRows.includes(it.id))
 
     return filtered.reduce<Record<string, number>>((list, it) => {
       const diff = getDiffOfHours(it.start, it.finish)
       const hours = getHoursOrZero(diff)
 
-      list[it.entity] = (list?.[it.entity] || 0) + hours
+      const key = options.listOfTech.find(entity => {
+        return entity.id === it.entityId
+      })?.key || null
+
+      if (key === null) return list
+
+      list[key] = (list?.[key] || 0) + hours
 
       return list
     }, {})
@@ -47,17 +53,17 @@ const TableFoot = () => {
 
     return filtered.reduce((total, it) => {
       const hours = getHoursOrZero(getDiffOfHours(it.start, it.finish))
-      const data = options.listOfTech.find(({ key }) => key === it.entity)
+      const entity = options.listOfTech.find(({ id }) => id === it.entityId)
 
       return [
         total[0] + hours,
-        total[1] + (hours * (data?.rate || 0)),
+        total[1] + (hours * (entity?.rate || 0)),
       ]
     }, [0, 0] as [number, number])
   }, [filteredTable, selectedRows, options.listOfTech])
 
   const textAmountsByLang = useMemo(() => {
-    const list = calcAmountByTech()
+    const list = calcAmountByEntity()
 
     return Object.keys(list).map((key) => {
       const data = options.listOfTech.find(it => it.key === key)

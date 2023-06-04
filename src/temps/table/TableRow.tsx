@@ -1,15 +1,13 @@
-import React, { FC, useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 import { formatDate, getDiffOfHours, getHoursOrZero, getTimeByDT } from '@/utils'
 import type { FieldsEnum, IWorkTableRow } from '@/types'
 import { DTEnum } from '@/types'
 import { Actions, ChangeDateTime, useTableContext } from '@/context/TableContext'
 import { TableRowActions } from '@/temps/table/Table'
+import EditableCell from '@/temps/table/EditableCell'
 
 type Nullable<T> = T | null
-
-type WriterList = {
-  [key in FieldsEnum]: boolean
-}
+type WriterList = Record<FieldsEnum, boolean>
 
 interface WTRowProps {
   data: IWorkTableRow,
@@ -32,32 +30,14 @@ function calcWorkHours(data: IWorkTableRow) {
 const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
   const [{ filteredTable, selectedRows, options }, dispatch, payload] = useTableContext()
   // state
-  const [writingMode, setWritingMode] = useState(defWritingData)
   const [diffDate, setDiffDate] = useState(formatDate(data))
   const [qtyHours, setQtyHours] = useState(() => calcWorkHours(data))
-  // ref
-  const startRef = useRef<Nullable<HTMLInputElement>>(null)
-  const finishRef = useRef<Nullable<HTMLInputElement>>(null)
-  const langRef = useRef<Nullable<HTMLSelectElement>>(null)
-  const paidRef = useRef<Nullable<HTMLInputElement>>(null)
-
-  const changeWritingMode = (type: FieldsEnum, value: boolean) => {
-    setWritingMode(prev => ({ ...prev, [type]: value }))
-  }
-
-  useEffect(() => {
-    if (writingMode.start) startRef.current?.focus()
-    if (writingMode.finish) finishRef.current?.focus()
-    if (writingMode.entity) langRef.current?.focus()
-    if (writingMode.paid) paidRef.current?.focus()
-  }, [writingMode])
 
   useEffect(() => {
     setQtyHours(calcWorkHours(data))
   }, [filteredTable])
 
-  function onBlurHandle(type: DTEnum) {
-    changeWritingMode(type, false)
+  function onBlurHandle() {
     setDiffDate(formatDate(data))
     setQtyHours(getDiffOfHours(data.start, data.finish))
   }
@@ -109,6 +89,17 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
       dispatchSelected([...selectedRows, data.id])
   }
 
+  function getEntityField(value: string | null, field: 'key' | 'id', def: string | null = null, list = options.listOfTech) {
+    const arr: ('key' | 'id')[] = ['key', 'id']
+    const key = arr[Number(!Boolean(arr.indexOf(field)))]!
+
+    return value ? list.find(it => it[key] === value)?.[field] || def : def
+  }
+
+  const entity = useMemo(() => {
+    return getEntityField(data.entityId, 'key') ?? 'Нет'
+  }, [data.entityId, options.listOfTech])
+
   return (
     <tr tabIndex={index} onKeyDown={onPressHandle}>
       {!options.hiddenCols.number && (
@@ -117,99 +108,100 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
 
       <td>{diffDate}</td>
 
-      <td
-        onDoubleClick={() => changeWritingMode('start', true)}
-      >
-        {writingMode.start
-          ? (
-            <input
-              type="datetime-local"
-              className="form-control"
-              value={data.start}
-              max={data.finish}
-              onChange={({ target }) => preChange('start', target.value)}
-              onBlur={() => onBlurHandle('start')}
-              ref={startRef}
-            />
-          )
-          : getTimeByDT(data.start)}
-      </td>
+      <EditableCell<HTMLInputElement>
+        data={getTimeByDT(data.start)}
+        onEdit={(ref, blur) => (
+          <input
+            type="datetime-local"
+            className="form-control"
+            value={data.start}
+            max={data.finish}
+            ref={ref}
+            onChange={({ target }) => {
+              preChange('start', target.value)
+            }}
+            onBlur={() => {
+              blur()
+              onBlurHandle()
+            }}
+          />
+        )}
+      />
 
-      <td
-        onDoubleClick={() => changeWritingMode('finish', true)}
-      >
-        {writingMode.finish
-          ? (
-            <input
-              type="datetime-local"
-              className="form-control"
-              value={data.finish}
-              min={data.start}
-              onChange={({ target }) => preChange('finish', target.value)}
-              onBlur={() => onBlurHandle('finish')}
-              ref={finishRef}
-            />
-          )
-          : getTimeByDT(data.finish)}
-      </td>
+      <EditableCell<HTMLInputElement>
+        data={getTimeByDT(data.finish)}
+        onEdit={(ref, blur) => (
+          <input
+            type="datetime-local"
+            className="form-control"
+            value={data.finish}
+            min={data.start}
+            ref={ref}
+            onChange={({ target }) => {
+              preChange('finish', target.value)
+            }}
+            onBlur={() => {
+              blur()
+              onBlurHandle()
+            }}
+          />
+        )}
+      />
 
       <td>{qtyHours} ч.</td>
 
-      {!options.hiddenCols.entity && (
-        <td
-          onDoubleClick={() => changeWritingMode('entity', true)}
-        >
-          {writingMode.entity
-            ? (
-              <select
-                className="form-select"
-                value={data.entity}
-                onChange={({ target }) => {
-                  dispatch({
-                    type: Actions.WH_Item,
-                    payload: {
-                      key: 'entity', id: data.id, value: target.value,
-                    },
-                  })
-                }}
-                onBlur={() => changeWritingMode('entity', false)}
-                ref={langRef}
-              >
-                {options.listOfTech.map((it, i) => (
-                  <option value={it.key} key={i}>{it.text}</option>
-                ))}
-              </select>
-            )
-            : data.entity}
-        </td>
-      )}
+      <EditableCell<HTMLSelectElement>
+        data={entity}
+        hidden={options.hiddenCols.entity}
+        onEdit={(ref, blur) => (
+          <select
+            className="form-select"
+            value={getEntityField(data.entityId, 'key') ?? 'null'}
+            onChange={({ target }) => {
+              dispatch({
+                type: Actions.WH_Item,
+                payload: {
+                  key: 'entityId',
+                  id: data.id,
+                  value: getEntityField(target.value, 'id'),
+                },
+              })
+            }}
+            onBlur={blur}
+            ref={ref}
+          >
+            <option value="null" disabled>Выбрать</option>
 
-      <td
-        onDoubleClick={() => changeWritingMode('paid', true)}
+            {options.listOfTech.map((it) => (
+              <option value={it.key} key={it.id}>{it.text}</option>
+            ))}
+          </select>
+        )}
+      />
+
+      <EditableCell<HTMLInputElement>
+        onEdit={(ref, blur) => (
+          <input
+            type="checkbox"
+            checked={data.isPaid}
+            className="form-check-input"
+            ref={ref}
+            onBlur={blur}
+            onChange={() => {
+              dispatch({
+                type: Actions.WH_Item,
+                payload: {
+                  key: 'isPaid', id: data.id, value: !data.isPaid,
+                },
+              })
+            }}
+          />
+        )}
       >
-        {writingMode.paid
-          ? (
-            <input
-              type="checkbox"
-              checked={data.isPaid}
-              className="form-check-input"
-              ref={paidRef}
-              onBlur={() => changeWritingMode('paid', false)}
-              onChange={() => {
-                dispatch({
-                  type: Actions.WH_Item,
-                  payload: {
-                    key: 'isPaid', id: data.id, value: !data.isPaid,
-                  },
-                })
-              }}
-            />
-          )
-          : (data.isPaid
-            ? (<span className="text-success">✓</span>)
-            : (<span className="text-danger">✗</span>))
-        }
-      </td>
+        {data.isPaid
+          ? (<span className="text-success">✓</span>)
+          : (<span className="text-danger">✗</span>)}
+      </EditableCell>
 
       <td>
         <input

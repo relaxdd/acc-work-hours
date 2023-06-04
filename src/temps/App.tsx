@@ -13,7 +13,7 @@ import {
 import { useEffect, useReducer, useState } from 'react'
 import Bottom from './Bottom'
 import Filter from './filter/Filter'
-import { getAllIds, getTypedKeys, localStorageKeys } from '@/utils'
+import { getAllIds, getTypedKeys } from '@/utils'
 import Left from './left/Left'
 import DescrModal from './modals/DescrModal'
 import TableService from '@/service/TableService'
@@ -24,7 +24,6 @@ import CompareData from '@/utils/class/CompareData'
 import { getAppSettings } from '@/utils/login'
 import HelpModal from '@/temps/modals/HelpModal'
 import AddingModal from '@/temps/modals/AddingModal'
-import { getLsOptionsKey } from '@/data'
 
 type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
 

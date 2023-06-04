@@ -5,13 +5,12 @@ import TableHead from './TableHead'
 import { Actions, ChangeDateTime, ListOfSorting, useTableContext } from '@/context/TableContext'
 import TableFoot from './TableFoot'
 import { IWorkTableRow } from '@/types'
-import ArrayExt from '@/utils/class/ArrayExt'
 import arrayExt from '@/utils/class/ArrayExt'
 
 class Filtering {
   public static byEntity(entity: string | 'none', list: IWorkTableRow[]) {
     return entity !== 'none'
-      ? list.filter((it) => it.entity === entity) : list
+      ? list.filter((it) => it.entityId === entity) : list
   }
 
   public static byDate(date: string | 'none', list: IWorkTableRow[]) {

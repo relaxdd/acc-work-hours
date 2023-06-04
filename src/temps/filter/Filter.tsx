@@ -1,4 +1,4 @@
-import FilterTech from './FilterTech'
+import FilterEntity from './FilterEntity'
 import { Actions, defTableFilter, useTableContext } from '@/context/TableContext'
 import FilterDate from './FilterDate'
 import scss from './Filter.module.scss'
@@ -70,7 +70,7 @@ const FilterOverview = () => {
         </div>
 
         <div>
-          <FilterTech/>
+          <FilterEntity/>
         </div>
 
         <div>

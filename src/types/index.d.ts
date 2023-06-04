@@ -7,7 +7,12 @@ export type IAppSettings = {
   isDisabled: boolean
 }
 
-export type ITableOptionsEntity = { key: string, text: string, rate: number }
+export type ITableOptionsEntity = {
+  id: string,
+  key: string,
+  text: string,
+  rate: number
+}
 
 export type ListOfHiddenCol = 'number' | 'entity' | 'description'
 export type ITableOptionsHidden = Record<ListOfHiddenCol, boolean>
@@ -35,12 +40,18 @@ export interface IWorkTable {
 export type IWorkTableRow = {
   id: string,
   tableId: string,
+  entityId: string | null,
   start: string,
   finish: string,
-  entity: string,
   isPaid: boolean,
   description: string,
   order: number
-} & { tech?: string }
+}
+
+export type ITableRowLegacy = Omit<IWorkTableRow, 'entityId'> & {
+  tech?: string,
+  entity?: string,
+  entityId?: string | null
+}
 
 export type BaseDispatch<V extends Object> = <T extends V, K extends keyof T>(key: K, value: T[K]) => void

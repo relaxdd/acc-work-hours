@@ -13,6 +13,7 @@ import EntityRepeater from '@/temps/setting/EntityRepeater'
 import { appVersion } from '@/defines'
 import SettingFields from '@/temps/setting/SettingFields'
 import HiddenCols from '@/temps/setting/HiddenCols'
+import Random from '@/utils/class/Random'
 
 export const labelsCols: Record<ListOfHiddenCol, string> = {
   number: 'Нумерация',
@@ -21,7 +22,7 @@ export const labelsCols: Record<ListOfHiddenCol, string> = {
 }
 
 const SettingModal = () => {
-  const [{ visibility, options, activeTable }, dispatch, payload] = useTableContext()
+  const [{ visibility, options, activeTable, modifiedTable }, dispatch, payload] = useTableContext()
   const [modified, setModified] = useState(options)
 
   useDidUpdateEffect(() => {
@@ -114,6 +115,14 @@ const SettingModal = () => {
     })
   }
 
+  function createLabel(number: number, titles: string[]) {
+    const cases = [2, 0, 1, 1, 1, 2]
+    return `${titles[
+      number % 100 > 4 && number % 100 < 20
+        ? 2 : cases[number % 10 < 5 ? number % 10 : 5]!
+      ]}`
+  }
+
   return (
     <Modal
       show={visibility.setting}
@@ -172,8 +181,22 @@ const SettingModal = () => {
           id={activeTable!}
           title="Сущности таблицы"
           data={modified.listOfTech}
-          baseKeys={['key', 'text', 'rate']}
-          baseTypes={{ text: 'string', key: 'string', rate: 'number' }}
+          baseKeys={['id', 'key', 'text', 'rate']}
+          baseTypes={{ id: 'string', text: 'string', key: 'string', rate: 'number' }}
+          onAdding={(it) => it['id'] = Random.uuid(10)}
+          onBeforeDelete={(i) => {
+            const { id } = modified.listOfTech[i]!
+            const qty = modifiedTable.filter(it => it.entityId === id).length
+
+            if (!qty) return true
+            else {
+              const bind = createLabel(qty, ['связан', 'связано', 'связано'])
+              const elem = createLabel(qty, ['элемент', 'элемента', 'элементов'])
+              const msg = `С этой сущностью ${bind} ${qty} ${elem}`
+
+              return window.confirm(`${msg} таблицы, вы действительно хотите её удалить?`)
+            }
+          }}
           onChange={(list) => {
             setModified(prev => ({ ...prev, listOfTech: list }))
           }}

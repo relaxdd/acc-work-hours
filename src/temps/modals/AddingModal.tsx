@@ -5,8 +5,13 @@ import { getDateTimeWithOffset, getFormattedDateTime, roundDateTime } from '@/ut
 import { IWorkTableRow } from '@/types'
 import Random from '@/utils/class/Random'
 
-type ExcludeFromTable = 'id' | 'tableId' | 'tech' | 'order'
-type ITask = Omit<IWorkTableRow, ExcludeFromTable>
+type ITask = {
+  start: string,
+  finish: string,
+  isPaid: boolean,
+  entity: string,
+  description: string
+}
 
 const defTask: ITask = {
   start: '',
@@ -49,7 +54,7 @@ const AddingModal = () => {
     setState(prev => ({ ...prev, ...getDateTime(options.dtRoundStep) }))
 
     if (!state.entity)
-      setState(prev => ({ ...prev, entity: options.listOfTech[0]!.key }))
+      setState(prev => ({ ...prev, entity: options.listOfTech[0]?.key || '' }))
 
     return () => {
       close?.removeEventListener('click', cancelCreate)
@@ -71,10 +76,14 @@ const AddingModal = () => {
   }
 
   function addNewTableRow() {
+    const { entity, ...other } = state
+    const entityId = options.listOfTech.find(it => it.key === entity)!.id
+
     const item: IWorkTableRow = {
-      id: Random.uuid(),
+      id: Random.uuid(13),
       tableId: activeTable!,
-      ...state,
+      entityId,
+      ...other,
       order: modifiedTable.length + 1,
     }
 
