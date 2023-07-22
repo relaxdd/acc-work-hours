@@ -25,10 +25,10 @@ const Details: FC<DetailsProps> = ({ item }) => {
 
   return (
     <div className={scss.details}>
-      <p>
-        <span className={scss.detailsName}>Идентификатор: </span>
-        <span className={scss.detailsValue}>{item.id}</span>
-      </p>
+      {/*<p>*/}
+      {/*  <span className={scss.detailsName}>Идентификатор: </span>*/}
+      {/*  <span className={scss.detailsValue}>{item.id}</span>*/}
+      {/*</p>*/}
 
       <p>
         <span className={scss.detailsName}>Дата создания: </span>

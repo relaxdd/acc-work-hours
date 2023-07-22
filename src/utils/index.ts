@@ -158,11 +158,3 @@ export function getQtyCols(obj: ITableOptionsHidden, initial = 9) {
     return obj[key] ? num - 1 : num
   }, initial)
 }
-
-// export function getTableInfoDto({ id, name, created, count }: IWorkTable): PartOfWorkTable {
-//   return { id, name, created, count }
-// }
-//
-// export function getTablesInfoDto(list: IWorkTable[]): PartOfWorkTable[] {
-//   return list.map(getTableInfoDto)
-// }

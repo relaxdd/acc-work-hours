@@ -3,18 +3,6 @@ import Random from 'utils/class/Random'
 import { getFormattedDateTime, parseLocalStorage } from '@/utils'
 import { getLsOptionsKey, getLsTableKey, LS_ACTIVE_KEY, LS_TABLES_KEY } from '@/data'
 
-// function checkNumber(n: any, type: 'int' | 'float') {
-//   switch (type) {
-//     case 'int':
-//       return typeof n === 'number' && Number.isInteger(n)
-//     case 'float':
-//       return typeof n === 'number' && !Number.isInteger(n)
-//   }
-// }
-
-// type BaseScalarTypes = 'int' | 'float' | 'string' | 'bool' | 'null'
-// type ListOfSchemeTypes<T extends Object> = { key: keyof T, type: BaseScalarTypes }[]
-
 class TableService {
   public static set listOfTablesInfo(list: IWorkTable[]) {
     localStorage.setItem(LS_TABLES_KEY, JSON.stringify(list))

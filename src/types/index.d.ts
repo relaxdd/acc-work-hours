@@ -20,6 +20,11 @@ export type ITableOptionsHidden = Record<ListOfHiddenCol, boolean>
 export type ListOfUsingKeys = 'delete' | 'up' | 'down'
 export type ITableOptionsKeys = Record<ListOfUsingKeys, string>
 
+export type ITableFullData = {
+  rows: IWorkTableRow[],
+  options: ITableOptions,
+}
+
 export type ITableOptions = {
   dtRoundStep: number,
   listOfTech: ITableOptionsEntity[]

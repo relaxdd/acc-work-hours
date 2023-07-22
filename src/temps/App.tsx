@@ -10,7 +10,7 @@ import {
   tableReducer,
   wrapPayload,
 } from 'context/TableContext'
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import Bottom from './Bottom'
 import Filter from './filter/Filter'
 import { getAllIds, getTypedKeys } from '@/utils'
@@ -24,6 +24,8 @@ import CompareData from '@/utils/class/CompareData'
 import { getAppSettings } from '@/utils/login'
 import HelpModal from '@/temps/modals/HelpModal'
 import AddingModal from '@/temps/modals/AddingModal'
+import TableServer from '@/service/TableServer'
+import { Spinner } from 'react-bootstrap'
 
 type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
 
@@ -81,33 +83,44 @@ function getActiveOptions(id: string | null, def = defOptions) {
     return options
 }
 
-function getInitStore(): ITableStore {
-  const list = TableService.listOfTablesInfo
+async function getServerStore(): Promise<ITableStore> {
+  const list = await TableServer.getTables()
 
   const active = getActiveTableInfo(list)
   if (!active) return defTableStore
 
-  const table = TableService.getActiveTableData(active.id)
-  const options = getActiveOptions(active.id)
+  const { rows, options } = await TableServer.getAllData(active.id)
 
   return {
     ...defTableStore,
     activeTable: active && active.id,
-    listOfTables: TableService.listOfTablesInfo,
-    options, settings: getAppSettings(),
-    ...getBoundPartsOfStore(table),
+    listOfTables: list, options,
+    settings: getAppSettings(),
+    ...getBoundPartsOfStore(rows),
   }
 }
 
 /* ====================================== */
 
 function App() {
-  const [store, dispatch] = useReducer(tableReducer, getInitStore())
+  const [store, dispatch] = useReducer(tableReducer, defTableStore)
   const [width, setWidth] = useState(window.innerWidth)
+  const [isLoading, setLoading] = useState(true)
+  const isInit = useRef(true)
 
   useEffect(() => {
     window.addEventListener('resize', () => {
       setWidth(window.innerWidth)
+    })
+
+    getServerStore().then(data => {
+      dispatch({
+        type: Actions.State,
+        payload: data
+      })
+
+      setLoading(false)
+      isInit.current = false
     })
   }, [])
 
@@ -128,10 +141,14 @@ function App() {
     }
   }, [store.initialTable, store.modifiedTable])
 
-  useDidUpdateEffect(() => {
+  useDidUpdateEffect(async () => {
+    if (isInit.current) return
+
     const table = store.activeTable !== null
-      ? TableService.getActiveTableData(store.activeTable)
+      ? await TableServer.getRows(store.activeTable)
       : []
+
+    console.log(table)
 
     dispatch({
       type: Actions.State,
@@ -144,24 +161,34 @@ function App() {
 
   return width >= 768 ? (
     <TableContext.Provider value={[store, dispatch, wrapPayload]}>
-      <Container>
-        {store.activeTable === null
-          ? <Empty/>
-          : (<>
-            <Filter/>
-            <Table/>
-            <Bottom/>
-            <DescrModal/>
-            <HelpModal/>
-            <SettingModal/>
+      {isLoading
+        ? (
+          <div
+            style={{ height: '100vh', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          >
+            <Spinner variant={'primary'}/>
+          </div>
+        )
+        : (
+          <Container>
+            {store.activeTable === null
+              ? <Empty/>
+              : (<>
+                <Filter/>
+                <Table/>
+                <Bottom/>
+                <DescrModal/>
+                <HelpModal/>
+                <SettingModal/>
 
-            {store.options.typeOfAdding === 'full' && (
-              <AddingModal/>
-            )}
-          </>)}
+                {store.options.typeOfAdding === 'full' && (
+                  <AddingModal/>
+                )}
+              </>)}
 
-        <Left/>
-      </Container>
+            <Left/>
+          </Container>
+        )}
     </TableContext.Provider>
   ) : (
     <div className="container">
