@@ -1,18 +1,17 @@
 import React, { useState } from 'react'
 import { Modal } from 'react-bootstrap'
 import { Actions, useTableContext } from '@/context/TableContext'
-import BaseRepeater from '@/temps/repeater/BaseRepeater'
+import BaseRepeater from '@/templates/repeater/BaseRepeater'
 import TableService from '@/service/TableService'
 import { getTypedKeys } from '@/utils'
 import { ITableOptions, ListOfHiddenCol } from '@/types'
 import CompareData from '@/utils/class/CompareData'
 import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
 import scss from './SettingModal.module.scss'
-import BindingKey from '@/temps/setting/BindingKey'
-import EntityRepeater from '@/temps/setting/EntityRepeater'
-import { appVersion } from '@/defines'
-import SettingFields from '@/temps/setting/SettingFields'
-import HiddenCols from '@/temps/setting/HiddenCols'
+import BindingKey from '@/templates/setting/BindingKey'
+import EntityRepeater from '@/templates/setting/EntityRepeater'
+import { APP_VERSION } from '@/defines'
+import HiddenCols from '@/templates/setting/HiddenCols'
 import Random from '@/utils/class/Random'
 
 export const labelsCols: Record<ListOfHiddenCol, string> = {
@@ -136,10 +135,6 @@ const SettingModal = () => {
       </Modal.Header>
 
       <Modal.Body>
-        <SettingFields/>
-
-        <hr/>
-
         <div className="mb-3">
           <label htmlFor="typeOfAdding">Вариант добавления строки</label>
 
@@ -252,7 +247,7 @@ const SettingModal = () => {
       <Modal.Footer>
         <div className="w-100 d-flex justify-content-between align-items-center">
           <div>
-            <span className="small" style={{ fontWeight: '500' }}>v{appVersion.name}</span>
+            <span className="small" style={{ fontWeight: '500' }}>v{APP_VERSION.name}</span>
           </div>
 
           <div style={{

@@ -3,7 +3,7 @@ import { Actions, defTableFilter, useTableContext } from '@/context/TableContext
 import FilterDate from './FilterDate'
 import scss from './Filter.module.scss'
 import { createContext, useContext } from 'react'
-import SortDate from '@/temps/filter/SortDate'
+import SortDate from '@/templates/filter/SortDate'
 
 const defFilterContext = {
   isVisible: false,

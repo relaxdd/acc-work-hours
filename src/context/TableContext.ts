@@ -1,6 +1,5 @@
 import { createContext, Dispatch, useContext } from 'react'
-import { DTEnum, IAppSettings, ITableOptions, IWorkTable, IWorkTableRow } from '@/types'
-import { defAppSetting } from '@/utils/login'
+import { DTEnum, ITableOptions, IWorkTable, IWorkTableRow } from '@/types'
 import Random from '@/utils/class/Random'
 
 type DispatchRewrite<T extends Object, K extends keyof T = keyof T> = { key: K, value: T[K] }
@@ -68,7 +67,7 @@ export type ITableStore = {
   /** Состояние опций таблицы */
   options: ITableOptions,
   /** Настройки приложения */
-  settings: IAppSettings,
+  // settings: IAppSettings,
   sorting: ListOfSorting
 }
 
@@ -119,7 +118,6 @@ export const defTableStore: ITableStore = {
   selectedRows: [],
   modalVisible: defModalVisible,
   filter: defTableFilter,
-  settings: defAppSetting,
   visibility: defVisibility,
   options: defOptions,
   sorting: 'order-asc',

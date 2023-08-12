@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
 import { Actions, useTableContext } from '@/context/TableContext'
 import TableService from '@/service/TableService'
-import type { IWorkTableWithActive } from '@/temps/left/Left'
+import type { IWorkTableWithActive } from '@/templates/left/Left'
 import scss from './Left.module.scss'
 import select from '@svg/select.svg'
 import greenSelect from '@svg/select-green.svg'

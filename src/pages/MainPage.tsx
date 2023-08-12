@@ -1,5 +1,5 @@
-import Table from './table/Table'
-import Container from './Container'
+import Table from '@/templates/table/Table'
+import Container from '@/templates/Container'
 import { ITableOptions, IWorkTable, IWorkTableRow } from 'types'
 import {
   Actions,
@@ -11,20 +11,19 @@ import {
   wrapPayload,
 } from 'context/TableContext'
 import { useEffect, useReducer, useRef, useState } from 'react'
-import Bottom from './Bottom'
-import Filter from './filter/Filter'
+import Bottom from '@/templates/Bottom'
+import Filter from '@/templates/filter/Filter'
 import { getAllIds, getTypedKeys } from '@/utils'
-import Left from './left/Left'
-import DescrModal from './modals/DescrModal'
+import Left from '@/templates/left/Left'
+import DescrModal from '@/templates/modals/DescrModal'
 import TableService from '@/service/TableService'
 import useDidUpdateEffect from '@/hooks/useDidUpdateEffect'
-import Empty from './empty/Empty'
-import SettingModal from './setting/SettingModal'
+import Empty from '@/templates/empty/Empty'
+import SettingModal from '@/templates/setting/SettingModal'
 import CompareData from '@/utils/class/CompareData'
-import { getAppSettings } from '@/utils/login'
-import HelpModal from '@/temps/modals/HelpModal'
-import AddingModal from '@/temps/modals/AddingModal'
-import TableServer from '@/service/TableServer'
+import HelpModal from '@/templates/modals/HelpModal'
+import AddingModal from '@/templates/modals/AddingModal'
+import TableServer from '@/api/TableServer'
 import { Spinner } from 'react-bootstrap'
 
 type BoundPartsOfStore = Pick<ITableStore, 'initialTable' | 'modifiedTable' | 'selectedRows'>
@@ -86,6 +85,8 @@ function getActiveOptions(id: string | null, def = defOptions) {
 async function getServerStore(): Promise<ITableStore> {
   const list = await TableServer.getTables()
 
+  console.log(list)
+
   const active = getActiveTableInfo(list)
   if (!active) return defTableStore
 
@@ -95,14 +96,13 @@ async function getServerStore(): Promise<ITableStore> {
     ...defTableStore,
     activeTable: active && active.id,
     listOfTables: list, options,
-    settings: getAppSettings(),
     ...getBoundPartsOfStore(rows),
   }
 }
 
 /* ====================================== */
 
-function App() {
+function MainPage() {
   const [store, dispatch] = useReducer(tableReducer, defTableStore)
   const [width, setWidth] = useState(window.innerWidth)
   const [isLoading, setLoading] = useState(true)
@@ -147,8 +147,6 @@ function App() {
     const table = store.activeTable !== null
       ? await TableServer.getRows(store.activeTable)
       : []
-
-    console.log(table)
 
     dispatch({
       type: Actions.State,
@@ -199,4 +197,4 @@ function App() {
   )
 }
 
-export default App
+export default MainPage

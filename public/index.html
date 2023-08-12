@@ -1,82 +1,37 @@
 <!DOCTYPE html>
 <html lang="ru-Ru">
 <head>
-  <meta charset="utf-8"/>
-  <link rel="icon" href="%PUBLIC_URL%/favicon.ico"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="theme-color" content="#000000"/>
+  <meta charset="UTF-8">
+
   <meta
-      name="description"
-      content="Web site created using create-react-app"
+    name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+  >
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#000000"/>
+
+  <title>Working hours | Учет рабочих часов</title>
+
+  <meta
+    name="description"
+    content="On this page you can create a table taking into account working hours"
   />
-  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png"/>
+
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:title" content="Working hours | Учет рабочих часов">
+  <meta property="og:description" content="On this page you can create a table taking into account working hours">
+  <meta name="format-detection" content="telephone=no">
+
+  <link rel="icon" href="%PUBLIC_URL%/favicon/favicon.ico"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/favicon/apple-touch-icon.png"/>
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json"/>
-
-  <title>Учет рабочих часов</title>
-
-  <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"></script>
-  <script>
-    (function () {
-      async function onLoadHandler() {
-        const origin = "https://working-hours.loc"
-
-        const setting = {
-          client_id: "d7458693540f4936a458f56040ac2546",
-          response_type: "token",
-          redirect_uri: `${origin}/suggest/token`
-        }
-
-        const button = {
-          view: "button",
-          parentId: "ya-auth",
-          buttonView: "main",
-          buttonTheme: "light",
-          buttonSize: "m",
-          buttonBorderRadius: 6
-        }
-
-        try {
-          const resp = await window.YaAuthSuggest.init(setting, origin, button)
-
-          if (resp.status !== 'ok') return
-
-          const data = await resp.handler()
-          console.log("Сообщение с токеном", data)
-
-          if (!data.access_token) return
-
-          const url = 'https://login.yandex.ru/info'
-
-          const headers = {
-            'Authorization': `OAuth ${data.access_token}`,
-            'Content-Type': 'application/json'
-          }
-
-          const options = { method: 'GET', headers }
-
-          const user = await fetch(url, options)
-
-          console.log(user)
-        } catch (e) {
-          console.error(e)
-        }
-      }
-
-      // window.addEventListener("load", onLoadHandler)
-    })()
-  </script>
-
-  <style>
-    #ya-auth {
-      position: absolute;
-      right: 15px;
-      top: 15px;
-    }
-  </style>
 </head>
 <body>
 <noscript>You need to enable JavaScript to run this app.</noscript>
 <div id="app-root"></div>
-<div id="ya-auth"></div>
 </body>
 </html>

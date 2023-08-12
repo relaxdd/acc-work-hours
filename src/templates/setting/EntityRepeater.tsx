@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { ITableOptionsEntity } from '@/types'
-import { RepeaterDispatch } from '@/temps/repeater/BaseRepeater'
+import { RepeaterDispatch } from '@/templates/repeater/BaseRepeater'
 
 interface EntityRepeaterProps {
   state: [ITableOptionsEntity, RepeaterDispatch<ITableOptionsEntity>],

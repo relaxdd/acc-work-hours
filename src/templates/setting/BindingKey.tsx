@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
 import { ITableOptions, ListOfUsingKeys } from '@/types'
-import scss from '@/temps/setting/SettingModal.module.scss'
+import scss from '@/templates/setting/SettingModal.module.scss'
 
 const labels: Record<ListOfUsingKeys, string> = {
   delete: 'Удалить строку',

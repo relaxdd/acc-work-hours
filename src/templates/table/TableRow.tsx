@@ -3,8 +3,8 @@ import { formatDate, getDiffOfHours, getHoursOrZero, getTimeByDT } from '@/utils
 import type { FieldsEnum, IWorkTableRow } from '@/types'
 import { DTEnum } from '@/types'
 import { Actions, ChangeDateTime, useTableContext } from '@/context/TableContext'
-import { TableRowActions } from '@/temps/table/Table'
-import EditableCell from '@/temps/table/EditableCell'
+import { TableRowActions } from '@/templates/table/Table'
+import EditableCell from '@/templates/table/EditableCell'
 
 type Nullable<T> = T | null
 type WriterList = Record<FieldsEnum, boolean>
