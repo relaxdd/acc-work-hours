@@ -1,6 +1,6 @@
 import { ITableOptionsEntity, IWorkTableRow } from '@/types'
 import Random from '@/utils/class/Random'
-import TableService from '@/service/TableService'
+import TableLocalService from '@/service/TableLocalService'
 
 type EventHandlers = {
   update: null | ((list: ITableOptionsEntity[]) => void),
@@ -51,18 +51,18 @@ class ImportService {
 
   /* ========================================== */
 
-  private insertEntities(entity: string[], prevTech: string[]) {
-    if (!this.handlers.update) return
+  // private insertEntities(entity: string[], prevTech: string[]) {
+  //   if (!this.handlers.update) return
 
-    const list = entity.filter(key => !prevTech.includes(key)).map((it, i) => ({
-      id: Random.uuid(10),
-      key: it,
-      text: `Ставка - ${i + 1}`,
-      rate: 150,
-    }))
+  //   const list = entity.filter(key => !prevTech.includes(key)).map((it, i) => ({
+  //     id: Random.uuid(10),
+  //     key: it,
+  //     text: `Ставка - ${i + 1}`,
+  //     rate: 150,
+  //   }))
 
-    this.handlers.update(list)
-  }
+  //   this.handlers.update(list)
+  // }
 
   private onload() {
     if (!this.reader.result) return
@@ -112,44 +112,47 @@ class ImportService {
     const list = []
     let order = this.length
 
-    const options = TableService.getActiveOptions(this.active)
+    // const options = TableLocalService.getActiveOptions(this.active)
+    const options = null
 
     if (!options) {
       alert('Произошла непредвиденная ошибка при импорте!')
       throw new Error('Нет данных о настройках таблицы!')
     }
 
-    const entityId = options.listOfTech.length
-      ? options.listOfTech[0]!.id
-      : null
+    return []
 
-    for (const it of data) {
-      if (!(typeof it === 'object' && !Array.isArray(it)))
-        return []
+    // const entityId = options.listOfTech.length
+    //   ? options.listOfTech[0]!.id
+    //   : '-1'
 
-      const check = schema.every(({ key, type, empty }) => {
-        return key in it && typeof it[key] === type &&
-          (type === 'string' && !empty ? it[key].trim() !== '' : true)
-      })
+    // for (const it of data) {
+    //   if (!(typeof it === 'object' && !Array.isArray(it)))
+    //     return []
 
-      if (!check) continue
+    //   const check = schema.every(({ key, type, empty }) => {
+    //     return key in it && typeof it[key] === type &&
+    //       (type === 'string' && !empty ? it[key].trim() !== '' : true)
+    //   })
 
-      const item: IWorkTableRow = {
-        id: it.id,
-        tableId: this.active,
-        entityId,
-        start: it.start,
-        finish: it.finish,
-        isPaid: it.isPaid,
-        description: it.description,
-        order: order + 1,
-      }
+    //   if (!check) continue
 
-      list.push(item)
-      order++
-    }
+    //   const item: IWorkTableRow = {
+    //     id: it.id,
+    //     tableId: this.active,
+    //     entityId,
+    //     start: it.start,
+    //     finish: it.finish,
+    //     isPaid: it.isPaid,
+    //     description: it.description,
+    //     order: order + 1,
+    //   }
 
-    return list
+    //   list.push(item)
+    //   order++
+    // }
+
+    // return list
   }
 }
 

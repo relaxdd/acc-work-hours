@@ -32,7 +32,6 @@
     "noImplicitOverride": true,
     "allowUnusedLabels": true,
     "allowUnreachableCode": true,
-    "keyofStringsOnly": true,
     "suppressExcessPropertyErrors": false,
     "downlevelIteration": true,
     "baseUrl": "./src",
@@ -42,6 +41,6 @@
     }
   },
   "include": [
-    "./src"
+    "src"
   ]
 }

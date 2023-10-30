@@ -1,5 +1,6 @@
 import { useAuthContext } from '@/templates/auth/AuthContext'
 import { TypeOfForms } from '@/pages/AuthPage'
+import { NavLink } from 'react-router-dom'
 
 const LoginPart = () => {
   const { onSubmit, formError } = useAuthContext()
@@ -54,7 +55,9 @@ const LoginPart = () => {
         )}
       </div>
 
-      <div id="emailHelp" className="form-text"><a href="/restore">Забыли пароль?</a></div>
+      <div id="emailHelp" className="form-text">
+        <NavLink to="/restore">Забыли пароль?</NavLink>
+      </div>
     </form>
   )
 }

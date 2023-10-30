@@ -2,9 +2,11 @@ import React from 'react'
 
 function ProfilePage() {
   return (
-    <div>
-      <p>Тестовая страница для редактирования профиля</p>
-    </div>
+    <main className="pt-4">
+      <div className="container">
+        <p>Тестовая страница для редактирования профиля</p>
+      </div>
+    </main>
   )
 }
 

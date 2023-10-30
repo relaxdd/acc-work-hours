@@ -1,3 +1,6 @@
+// TODO: Поменять типы всех ID на number
+// TODO: Добавить предупреждение о том что нельзя удалять сущность пока к ней привязанны какие то строки в таблице
+
 export type FieldsEnum = 'start' | 'finish' | 'entity' | 'paid'
 export type DTEnum = 'start' | 'finish'
 
@@ -8,10 +11,12 @@ export type IAppSettings = {
 }
 
 export type ITableOptionsEntity = {
-  id: string,
+  id: number,
   key: string,
   text: string,
-  rate: number
+  rate: number,
+  tableId: number, 
+  optionId: number
 }
 
 export type ListOfHiddenCol = 'number' | 'entity' | 'description'
@@ -26,31 +31,33 @@ export type ITableFullData = {
 }
 
 export type ITableOptions = {
+  id: number,
   dtRoundStep: number,
   listOfTech: ITableOptionsEntity[]
   hiddenCols: ITableOptionsHidden
   usingKeys: ITableOptionsKeys,
-  typeOfAdding: 'fast' | 'full'
+  typeOfAdding: 'fast' | 'full',
+  tableId: number
 }
 
 export interface IWorkTable {
-  id: string,
-  userId: string | null,
+  id: number,
   name: string,
-  created: string,
   password: string | null,
   count: number
+  created: string,
+  userId: number,
 }
 
 export type IWorkTableRow = {
-  id: string,
-  tableId: string,
-  entityId: string | null,
+  id: number,
   start: string,
   finish: string,
   isPaid: boolean,
   description: string,
-  order: number
+  order: number,
+  tableId: number,
+  entityId: number,
 }
 
 export type ITableRowLegacy = Omit<IWorkTableRow, 'entityId'> & {

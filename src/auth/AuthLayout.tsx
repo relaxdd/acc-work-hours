@@ -3,12 +3,26 @@ import { AuthProvider, IUser } from '@/auth/AuthProvider'
 import { Suspense } from 'react'
 import { Alert, Spinner } from 'react-bootstrap'
 
+const Fallback = () => (
+  <div
+    style={{
+      height: '100vh',
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}
+  >
+    <Spinner variant="primary" animation="border"/>
+  </div>
+)
+
 const AuthLayout = () => {
   const outlet = useOutlet()
   const { userPromise } = useLoaderData() as { userPromise: Promise<IUser | null> }
 
   return (
-    <Suspense fallback={<Spinner variant="primary" animation="border"/>}>
+    <Suspense fallback={<Fallback/>}>
       <Await
         resolve={userPromise}
         errorElement={<Alert variant="danger">Something went wrong!</Alert>}

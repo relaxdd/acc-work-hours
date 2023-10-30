@@ -11,16 +11,22 @@ import LogoutPage from '@/pages/LogoutPage'
 import ProfilePage from '@/pages/ProfilePage'
 import { LS_AUTH_KEY } from '@/defines'
 import RestorePage from '@/pages/RestorePage'
+import { getAuthorization } from '@/api'
+
+interface ValidateResp {
+  message: string,
+  user: IUser
+}
 
 async function loadUserData() {
   const token = window.localStorage.getItem(LS_AUTH_KEY)
   if (!token) return null
 
   const url = 'http://localhost:5000/api/auth/validate'
-  const params = { headers: { 'Authorization': 'Bearer ' + token } }
+  const params = { headers: getAuthorization(token) }
 
   try {
-    const resp = await axios.get<{ message: string, user: IUser }>(url, params)
+    const resp = await axios.get<ValidateResp>(url, params)
     return resp?.data?.user || null
   } catch (e) {
     console.error(e)

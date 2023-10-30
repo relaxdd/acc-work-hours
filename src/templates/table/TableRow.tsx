@@ -1,19 +1,28 @@
-import React, { FC, useEffect, useMemo, useState } from 'react'
-import { formatDate, getDiffOfHours, getHoursOrZero, getTimeByDT } from '@/utils'
-import type { FieldsEnum, IWorkTableRow } from '@/types'
-import { DTEnum } from '@/types'
-import { Actions, ChangeDateTime, useTableContext } from '@/context/TableContext'
-import { TableRowActions } from '@/templates/table/Table'
-import EditableCell from '@/templates/table/EditableCell'
+import React, { FC, useEffect, useMemo, useState } from "react";
+import {
+  formatDate,
+  getDiffOfHours,
+  getHoursOrZero,
+  getTimeByDT,
+} from "@/utils";
+import type { FieldsEnum, IWorkTableRow } from "@/types";
+import { DTEnum } from "@/types";
+import {
+  Actions,
+  ChangeDateTime,
+  useTableContext,
+} from "@/context/TableContext";
+import { TableRowActions } from "@/templates/table/Table";
+import EditableCell from "@/templates/table/EditableCell";
 
-type Nullable<T> = T | null
-type WriterList = Record<FieldsEnum, boolean>
+type Nullable<T> = T | null;
+type WriterList = Record<FieldsEnum, boolean>;
 
 interface WTRowProps {
-  data: IWorkTableRow,
-  index: number,
-  changeDT: ChangeDateTime,
-  onAction: (action: TableRowActions, id: string) => void
+  data: IWorkTableRow;
+  index: number;
+  changeDT: ChangeDateTime;
+  onAction: (action: TableRowActions, id: number) => void;
 }
 
 const defWritingData: WriterList = {
@@ -21,90 +30,95 @@ const defWritingData: WriterList = {
   finish: false,
   entity: false,
   paid: false,
-}
+};
 
 function calcWorkHours(data: IWorkTableRow) {
-  return getHoursOrZero(getDiffOfHours(data.start, data.finish))
+  return getHoursOrZero(getDiffOfHours(data.start, data.finish));
 }
 
 const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
-  const [{ filteredTable, selectedRows, options }, dispatch, payload] = useTableContext()
+  const [{ filteredTable, selectedRows, options }, dispatch, payload] =
+    useTableContext();
   // state
-  const [diffDate, setDiffDate] = useState(formatDate(data))
-  const [qtyHours, setQtyHours] = useState(() => calcWorkHours(data))
+  const [diffDate, setDiffDate] = useState(formatDate(data));
+  const [qtyHours, setQtyHours] = useState(() => calcWorkHours(data));
 
   useEffect(() => {
-    setQtyHours(calcWorkHours(data))
-  }, [filteredTable])
+    setQtyHours(calcWorkHours(data));
+  }, [filteredTable]);
 
   function onBlurHandle() {
-    setDiffDate(formatDate(data))
-    setQtyHours(getDiffOfHours(data.start, data.finish))
+    setDiffDate(formatDate(data));
+    setQtyHours(getDiffOfHours(data.start, data.finish));
   }
 
   function preChange(key: DTEnum, value: string) {
     const check = (() => {
       switch (key) {
-        case 'start':
-          return value < data.finish
-        case 'finish':
-          return value > data.start
+        case "start":
+          return value < data.finish;
+        case "finish":
+          return value > data.start;
       }
-    })()
+    })();
 
-    if (!check) return
+    if (!check) return;
 
-    changeDT(key, value, data.id)
+    changeDT(key, value, data.id);
   }
 
   function onPressHandle(e: React.KeyboardEvent<HTMLTableRowElement>) {
-    e.preventDefault()
+    e.preventDefault();
 
     switch (e.code) {
-      case (options?.usingKeys?.delete || 'Delete'):
-        const msg = `Хотите удалить строку '${index + 1}'?`
-        if (!window.confirm(msg)) return
-        onAction('delete', data.id)
-        break
-      case (options?.usingKeys?.up || 'ArrowUp'):
-        onAction('moveUp', data.id)
-        break
-      case (options?.usingKeys?.down || 'ArrowDown'):
-        onAction('moveDown', data.id)
-        break
+      case options?.usingKeys?.delete || "Delete":
+        const msg = `Хотите удалить строку '${index + 1}'?`;
+        if (!window.confirm(msg)) return;
+        onAction("delete", data.id);
+        break;
+      case options?.usingKeys?.up || "ArrowUp":
+        onAction("moveUp", data.id);
+        break;
+      case options?.usingKeys?.down || "ArrowDown":
+        onAction("moveDown", data.id);
+        break;
     }
   }
 
   function dispatchSelected(value: string[]) {
     dispatch({
       type: Actions.Rewrite,
-      payload: payload('selectedRows', value),
-    })
+      payload: payload("selectedRows", value),
+    });
   }
 
   function toggleCheckHours() {
-    if (selectedRows.includes(data.id))
-      dispatchSelected(selectedRows.filter(it => it !== data.id))
-    else
-      dispatchSelected([...selectedRows, data.id])
+    if (selectedRows.includes(String(data.id)))
+      dispatchSelected(selectedRows.filter((it) => it !== String(data.id)));
+    else dispatchSelected([...selectedRows, String(data.id)]);
   }
 
-  function getEntityField(value: string | null, field: 'key' | 'id', def: string | null = null, list = options.listOfTech) {
-    const arr: ('key' | 'id')[] = ['key', 'id']
-    const key = arr[Number(!Boolean(arr.indexOf(field)))]!
+  function getEntityField(
+    value: string | number | null,
+    field: "key" | "id",
+    def: string | null = null,
+    list = options.listOfTech
+  ) {
+    const arr = ["key", "id"] as const;
+    const key = arr[+!Boolean(arr.indexOf(field))]!;
 
-    return value ? list.find(it => it[key] === value)?.[field] || def : def
+    return value
+      ? list.find((it) => String(it[key]) === String(value))?.[field] || def
+      : def;
   }
 
   const entity = useMemo(() => {
-    return getEntityField(data.entityId, 'key') ?? 'Нет'
-  }, [data.entityId, options.listOfTech])
+    return getEntityField(data.entityId, "key") ?? "Нет";
+  }, [data.entityId, options.listOfTech]);
 
   return (
     <tr tabIndex={index} onKeyDown={onPressHandle}>
-      {!options.hiddenCols.number && (
-        <td>{index + 1}</td>
-      )}
+      {!options.hiddenCols.number && <td>{index + 1}</td>}
 
       <td>{diffDate}</td>
 
@@ -118,11 +132,11 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
             max={data.finish}
             ref={ref}
             onChange={({ target }) => {
-              preChange('start', target.value)
+              preChange("start", target.value);
             }}
             onBlur={() => {
-              blur()
-              onBlurHandle()
+              blur();
+              onBlurHandle();
             }}
           />
         )}
@@ -138,11 +152,11 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
             min={data.start}
             ref={ref}
             onChange={({ target }) => {
-              preChange('finish', target.value)
+              preChange("finish", target.value);
             }}
             onBlur={() => {
-              blur()
-              onBlurHandle()
+              blur();
+              onBlurHandle();
             }}
           />
         )}
@@ -156,24 +170,31 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
         onEdit={(ref, blur) => (
           <select
             className="form-select"
-            value={getEntityField(data.entityId, 'key') ?? 'null'}
+            value={getEntityField(data.entityId, "key") ?? "null"}
             onChange={({ target }) => {
               dispatch({
                 type: Actions.WH_Item,
                 payload: {
-                  key: 'entityId',
+                  key: "entityId",
                   id: data.id,
-                  value: getEntityField(target.value, 'id'),
+                  value: (() => {
+                    const id = getEntityField(target.value, "id");
+                    return id ? +id : null;
+                  })(),
                 },
-              })
+              });
             }}
             onBlur={blur}
             ref={ref}
           >
-            <option value="null" disabled>Выбрать</option>
+            <option value="null" disabled>
+              Выбрать
+            </option>
 
             {options.listOfTech.map((it) => (
-              <option value={it.key} key={it.id}>{it.text}</option>
+              <option value={it.key} key={it.id}>
+                {it.text}
+              </option>
             ))}
           </select>
         )}
@@ -191,46 +212,52 @@ const TableRow: FC<WTRowProps> = ({ data, index, changeDT, onAction }) => {
               dispatch({
                 type: Actions.WH_Item,
                 payload: {
-                  key: 'isPaid', id: data.id, value: !data.isPaid,
+                  key: "isPaid",
+                  id: data.id,
+                  value: !data.isPaid,
                 },
-              })
+              });
             }}
           />
         )}
       >
-        {data.isPaid
-          ? (<span className="text-success">✓</span>)
-          : (<span className="text-danger">✗</span>)}
+        {data.isPaid ? (
+          <span className="text-success">✓</span>
+        ) : (
+          <span className="text-danger">✗</span>
+        )}
       </EditableCell>
 
       <td>
         <input
           type="checkbox"
           className="form-check-input"
-          checked={selectedRows.includes(data.id)}
+          checked={selectedRows.includes(String(data.id))}
           onChange={toggleCheckHours}
         />
       </td>
 
       {!options.hiddenCols.description && (
         <td
-          style={{ padding: '5px 7px' }}
+          style={{ padding: "5px 7px" }}
           onDoubleClick={(e) => {
-            e.preventDefault()
+            e.preventDefault();
 
             dispatch({
               type: Actions.Rewrite,
-              payload: payload('modalVisible', {
-                id: data.id, visible: true,
+              payload: payload("modalVisible", {
+                id: String(data.id),
+                visible: true,
               }),
-            })
+            });
           }}
         >
-          {data.description.slice(0, 35).trim() + (data.description.length > 25 ? '...' : '')}
+          {data.description.slice(0, 35).trim() +
+            (data.description.length > 25 ? "..." : "")}
         </td>
       )}
     </tr>
-  )
-}
+  );
+};
 
-export default TableRow
+export default TableRow;

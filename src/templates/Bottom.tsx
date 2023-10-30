@@ -1,21 +1,27 @@
-import React from 'react'
-import CompareData from '@/utils/class/CompareData'
-import { IWorkTableRow } from '@/types'
-import { getAllIds, getDateTimeWithOffset, getFormattedDateTime, roundDateTime } from '@/utils'
-import Random from '@/utils/class/Random'
-import { Actions, useTableContext } from '@/context/TableContext'
-import TableService from '@/service/TableService'
-import ImportService from '@/service/ImportService'
+import CompareData from "@/utils/class/CompareData";
+import { IWorkTableRow } from "@/types";
+import {
+  getAllIds,
+  getDateTimeWithOffset,
+  getFormattedDateTime,
+  roundDateTime,
+} from "@/utils";
+import Random from "@/utils/class/Random";
+import { Actions, useTableContext } from "@/context/TableContext";
 
 const Bottom = () => {
-  const [{
-    initialTable,
-    modifiedTable,
-    options,
-    activeTable,
-    selectedRows,
-    listOfTables,
-  }, dispatch, payload] = useTableContext()
+  const [
+    {
+      initialTable,
+      modifiedTable,
+      options,
+      activeTable,
+      selectedRows,
+      listOfTables,
+    },
+    dispatch,
+    payload,
+  ] = useTableContext();
 
   function dispatchModifiedTable(table: IWorkTableRow[]) {
     dispatch({
@@ -24,60 +30,65 @@ const Bottom = () => {
         modifiedTable: table,
         selectedRows: getAllIds(table),
       },
-    })
+    });
   }
 
   function addFastTableRow() {
-    const dt = getFormattedDateTime()
-    const start = options.dtRoundStep ? roundDateTime(dt, options.dtRoundStep) : dt
-    const finish = getDateTimeWithOffset(1.5, start)
+    const dt = getFormattedDateTime();
+    const start = options.dtRoundStep
+      ? roundDateTime(dt, options.dtRoundStep)
+      : dt;
+    const finish = getDateTimeWithOffset(1.5, start);
 
     if (!options.listOfTech.length) {
-      alert('Ошибка: Добавьте варианты сущностей!')
-      return
+      alert("Ошибка: Добавьте варианты сущностей!");
+      return;
     }
 
     const item: IWorkTableRow = {
-      id: Random.uuid(13),
-      tableId: activeTable!,
+      id: NaN,
+      tableId: +activeTable!,
       entityId: options.listOfTech[0]!.id,
       start,
       finish,
       isPaid: false,
-      description: '',
+      description: "",
       order: modifiedTable.length + 1,
-    }
+    };
 
-    const table = [...modifiedTable, item]
+    const table = [...modifiedTable, item];
 
     dispatch({
       type: Actions.State,
       payload: {
         modifiedTable: table,
-        selectedRows: [...selectedRows, item.id],
+        selectedRows: [...selectedRows, String(item.id)],
       },
-    })
+    });
   }
 
   function addTableRow() {
     switch (options.typeOfAdding) {
-      case 'fast':
-        addFastTableRow()
-        break
-      case 'full':
+      case "fast":
+        addFastTableRow();
+        break;
+      case "full":
         dispatch({
           type: Actions.Visible,
-          payload: { key: 'adding', value: true },
-        })
-        break
+          payload: { key: "adding", value: true },
+        });
+        break;
     }
   }
 
   function saveWorkTableData() {
+    console.log(modifiedTable);
+    
     const updated = listOfTables.map((it) => {
-      return it.id === activeTable
-        ? { ...it, count: modifiedTable.length } : it
-    })
+      return String(it.id) === activeTable
+        ? { ...it, count: modifiedTable.length }
+        : it;
+    });
 
     dispatch({
       type: Actions.State,
@@ -85,89 +96,95 @@ const Bottom = () => {
         initialTable: modifiedTable,
         listOfTables: updated,
       },
-    })
+    });
 
-    TableService.updateActiveTableData(activeTable!, modifiedTable)
-    TableService.listOfTablesInfo = updated
+    // TableLocalService.updateActiveTableData(activeTable!, modifiedTable)
+    // TableLocalService.listOfTablesInfo = updated
   }
 
   function showExportData() {
-    window.navigator.clipboard.writeText(JSON.stringify(modifiedTable))
+    window.navigator.clipboard
+      .writeText(JSON.stringify(modifiedTable))
       .then(() => {
-        alert('База рабочих часов успешно скопирована в буфер обмена')
+        alert("База рабочих часов успешно скопирована в буфер обмена");
       })
-      .catch(err => {
-        console.error(err)
-        alert('Не удалось получить данные!')
-      })
+      .catch((err) => {
+        console.error(err);
+        alert("Не удалось получить данные!");
+      });
   }
 
   // TODO: Вынести в модалку импорта
   function importTableData() {
-    let overwrite = false
+    let overwrite = false;
 
     function refine() {
-      const actions = [['no', '0', 'n', 'нет'], ['yes', '1', 'y', 'да']]
-      const msg = `Таблица не пуста, выберите действие: перезаписать или объединить (y/n)`
+      const actions = [
+        ["no", "0", "n", "нет"],
+        ["yes", "1", "y", "да"],
+      ];
+      const msg = `Таблица не пуста, выберите действие: перезаписать или объединить (y/n)`;
 
-      const result = window.prompt(msg)
-      if (!result) return
+      const result = window.prompt(msg);
+      if (!result) return;
 
       const choice = actions.findIndex((it) => {
-        return it.includes(result.toLowerCase())
-      })
+        return it.includes(result.toLowerCase());
+      });
 
-      if (choice === -1) return false
-      overwrite = Boolean(choice)
+      if (choice === -1) return false;
+      overwrite = Boolean(choice);
 
-      return true
+      return true;
     }
 
     function handler(e: any) {
-      if (!e.target) return
-      const file = e.target.files?.[0]
-      if (!file) return
+      if (!e.target) return;
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-      const service = new ImportService(file, options.listOfTech, activeTable!, modifiedTable.length)
+      alert("Not Implemented!");
+      return;
 
-      service.onUpdateEntity((entities) => {
-        TableService.updateActiveOptions(activeTable!, {
-          ...options, listOfTech: overwrite
-            ? entities : [...options.listOfTech, ...entities],
-        })
-      })
+      // const service = new ImportService(file, options.listOfTech, activeTable!, modifiedTable.length)
 
-      service.onSuccess((table) => {
-        table = overwrite ? table : [...modifiedTable, ...table]
-        TableService.updateActiveTableData(activeTable!, table)
-        const list = TableService.listOfTablesInfo
+      // service.onUpdateEntity((entities) => {
+      //   TableLocalService.updateActiveOptions(activeTable!, {
+      //     ...options, listOfTech: overwrite
+      //       ? entities : [...options.listOfTech, ...entities],
+      //   })
+      // })
 
-        for (let it of list) {
-          if (it.id !== activeTable) continue
-          it.count = table.length
-        }
+      // service.onSuccess((table) => {
+      //   table = overwrite ? table : [...modifiedTable, ...table]
+      //   TableLocalService.updateActiveTableData(activeTable!, table)
+      //   const list = TableLocalService.listOfTablesInfo
 
-        TableService.listOfTablesInfo = list
-        window.location.reload()
-      })
+      //   for (let it of list) {
+      //     if (String(it.id) !== activeTable) continue
+      //     it.count = table.length
+      //   }
+
+      //   TableLocalService.listOfTablesInfo = list
+      //   window.location.reload()
+      // })
     }
 
-    if (initialTable.length > 0 && !refine())
-      return
+    if (initialTable.length > 0 && !refine()) return;
 
-    const input = document.createElement('input')
+    const input = document.createElement("input");
 
-    input.setAttribute('type', 'file')
-    input.setAttribute('accept', '.json')
-    input.addEventListener('change', handler)
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", ".json");
+    input.addEventListener("change", handler);
 
-    input.click()
+    input.click();
   }
 
   return (
     <div
       className="d-flex justify-content-end"
-      style={{ columnGap: '5px', marginBottom: '20px' }}
+      style={{ columnGap: "5px", marginBottom: "20px" }}
     >
       <input
         type="button"
@@ -207,7 +224,7 @@ const Bottom = () => {
         onClick={addTableRow}
       />
     </div>
-  )
-}
+  );
+};
 
-export default Bottom
+export default Bottom;
