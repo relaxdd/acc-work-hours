@@ -177,12 +177,12 @@ const Bottom = () => {
         disabled={!modifiedTable.length}
       />
 
-      <input
+      {/* <input
         type="button"
         value="Импорт"
         className="btn btn-outline-secondary"
         onClick={importTableData}
-      />
+      /> */}
 
       <input
         type="button"

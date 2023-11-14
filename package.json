@@ -1,30 +1,30 @@
 {
   "name": "working-hours",
   "homepage": "/working-hours/",
-  "version": "2.1.6-beta-1",
+  "version": "2.1.6",
   "private": true,
   "dependencies": {
-    "bootstrap": "^5.2.3",
-    "crypto-js": "^4.1.1",
+    "bootstrap": "^5.3.2",
+    "crypto-js": "^4.2.0",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.7.2",
+    "react-bootstrap": "^2.9.1",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
     "@craco/types": "^7.1.0",
-    "@types/crypto-js": "^4.1.1",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.12",
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.10",
+    "@types/crypto-js": "^4.2.1",
+    "@types/node": "^20.9.0",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@typescript-eslint/parser": "^5.62.0",
     "react-scripts": "5.0.1",
     "sass": "^1.58.1",
-    "typescript": "^5.0.4",
-    "web-vitals": "^2.1.4"
+    "typescript": "^5.2.2",
+    "web-vitals": "^3.5.0"
   },
   "overrides": {
-    "typescript": "^5.0.4"
+    "typescript": "^5.2.2"
   },
   "scripts": {
     "start": "craco start",

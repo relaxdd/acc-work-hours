@@ -32,7 +32,6 @@
     "noImplicitOverride": true,
     "allowUnusedLabels": true,
     "allowUnreachableCode": true,
-    "keyofStringsOnly": true,
     "suppressExcessPropertyErrors": false,
     "downlevelIteration": true,
     "baseUrl": "./src",

@@ -37,7 +37,9 @@ const FilterOverview = () => {
             type="button"
             className="btn btn-warning"
             value="Аналитика"
-            disabled
+            onClick={() => {
+              alert("Скоро! Следите за обновлениями сайта ^_^")
+            }}
           />
         </div>
 

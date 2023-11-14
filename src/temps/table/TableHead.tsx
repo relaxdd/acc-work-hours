@@ -58,8 +58,8 @@ const TableHead = () => {
         {!hiddenCols.entity && (
           <th>Сущность</th>
         )}
-        <th>Опл.</th>
-        <th>Вбр.</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
         {!hiddenCols.description && (
           <th>Описание</th>
         )}
